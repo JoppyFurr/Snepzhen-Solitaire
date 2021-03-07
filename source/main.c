@@ -15,6 +15,8 @@
 const uint8_t palette [16] = {
     0x04,   /* 0 - Dark green */
     0x19,   /* 1 - Light green */
+    0x00,   /* 2 - Black */
+    0x3f,   /* 3 - White */
 };
 
 /* Patterns */
@@ -22,6 +24,7 @@ const uint32_t patterns [] = {
     /* 00 - Blank */
     0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000,
+
     /* 01 - Outline top-left */
     0x00000007, 0x00000008, 0x00000010, 0x00000020,
     0x00000020, 0x00000020, 0x00000020, 0x00000020,
@@ -46,6 +49,40 @@ const uint32_t patterns [] = {
     /* 08 - Outline bottom-right */
     0x00000004, 0x00000004, 0x00000004, 0x00000004,
     0x00000004, 0x00000008, 0x00000010, 0x000000e0,
+
+    /* 09 - Card top-left */
+    0x00000700, 0x00000f07, 0x00001f0f, 0x00003f1f,
+    0x00003f1f, 0x00003f1f, 0x00003f1f, 0x00003f1f,
+    /* 10 - Card top-left stacked */
+    0x00003f18, 0x00003f17, 0x00003f0f, 0x00003f1f,
+    0x00003f1f, 0x00003f1f, 0x00003f1f, 0x00003f1f,
+    /* 11 - Card top-edge */
+    0x0000ff00, 0x0000ffff, 0x0000ffff, 0x0000ffff,
+    0x0000ffff, 0x0000ffff, 0x0000ffff, 0x0000ffff,
+    /* 12 - Card top-right */
+    0x0000e000, 0x0000f0e0, 0x0000f8f0, 0x0000fcf8,
+    0x0000fcf8, 0x0000fcf8, 0x0000fcf8, 0x0000fcf8,
+    /* 13 - Card top-right stacked */
+    0x0000fc18, 0x0000fce8, 0x0000fcf0, 0x0000fcf8,
+    0x0000fcf8, 0x0000fcf8, 0x0000fcf8, 0x0000fcf8,
+    /* 14 - Card left-edge */
+    0x00003f1f, 0x00003f1f, 0x00003f1f, 0x00003f1f,
+    0x00003f1f, 0x00003f1f, 0x00003f1f, 0x00003f1f,
+    /* 15 - Card blank-middle */
+    0x0000ffff, 0x0000ffff, 0x0000ffff, 0x0000ffff,
+    0x0000ffff, 0x0000ffff, 0x0000ffff, 0x0000ffff,
+    /* 16 - Card right-edge */
+    0x0000fcf8, 0x0000fcf8, 0x0000fcf8, 0x0000fcf8,
+    0x0000fcf8, 0x0000fcf8, 0x0000fcf8, 0x0000fcf8,
+    /* 17 - Card bottom-left */
+    0x00003f1f, 0x00003f1f, 0x00003f1f, 0x00003f1f,
+    0x00003f1f, 0x00001f0f, 0x00000f07, 0x00000700,
+    /* 18 - Card bottom-edge */
+    0x0000ffff, 0x0000ffff, 0x0000ffff, 0x0000ffff,
+    0x0000ffff, 0x0000ffff, 0x0000ffff, 0x0000ff00,
+    /* 19 - Card bottom-right */
+    0x0000fcf8, 0x0000fcf8, 0x0000fcf8, 0x0000fcf8,
+    0x0000fcf8, 0x0000f8f0, 0x0000f0e0, 0x0000e000,
 };
 
 
@@ -61,6 +98,25 @@ void render_tiles (void)
         4, 0, 0, 5,
         4, 0, 0, 5,
         6, 7, 7, 8
+    };
+
+
+    uint16_t blank_card [] = {
+         9, 11, 11, 12,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        17, 18, 18, 19
+    };
+
+    uint16_t blank_card_stacked [] = {
+        10, 11, 11, 13,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        17, 18, 18, 19
     };
 
     /* Dragons, foundations. */
@@ -79,6 +135,9 @@ void render_tiles (void)
     {
         SMS_loadTileMapArea (4 * i, 9, &empty_slot, 4, 6);
     }
+
+    SMS_loadTileMapArea (0,  9, &blank_card, 4, 6);
+    SMS_loadTileMapArea (0, 10, &blank_card_stacked, 4, 6);
 }
 
 
