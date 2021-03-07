@@ -5,6 +5,7 @@ devkitSMS="${HOME}/Code/devkitSMS"
 SMSlib="${devkitSMS}/SMSlib"
 ihx2sms="${devkitSMS}/ihx2sms/Linux/ihx2sms"
 
+rm -r build
 mkdir -p build
 
 echo "Compiling..."
