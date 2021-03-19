@@ -1,8 +1,11 @@
 
+#define CHINESE_START 20
+#define NUMBERS_START 128
+
 /* Patterns */
 const uint32_t patterns [] = {
 
-    /* 00 - Empty */
+    /* 00 - Empty tile */
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
 

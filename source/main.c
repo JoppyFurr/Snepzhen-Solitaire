@@ -25,6 +25,60 @@ const uint8_t palette [16] = {
 
 
 /*
+ * Render one card.
+ *
+ * Card bits:
+ *   [6:7] Zero
+ *   [4:5] Card type (0:black, 1:red, 2:green, 3:special)
+ *   [0:3] Card value (0-8)
+ */
+void render_card (uint8_t col, uint8_t y, uint8_t card, bool bottom)
+{
+    uint16_t card_tiles [] = {
+         9, 11, 11, 12,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        17, 18, 18, 19
+    };
+
+    uint8_t tile;
+
+    if ((card & 0x30) == 0x30)
+    {
+        /* Special card */
+        /* TODO */
+    }
+    else
+    {
+        /* Standard card */
+        uint8_t value  = card & 0x0f;
+        uint8_t colour = card >> 4;
+
+        /* Card corners */
+        tile = NUMBERS_START + value * 6 + colour * 2;
+        card_tiles [ 0] = tile;
+        card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+        if (!bottom)
+        {
+            card_tiles [0] += 1;
+            card_tiles [3] = 13;
+        }
+
+        /* Chinese numbers */
+        tile = CHINESE_START + value * 12 + colour * 4;
+        card_tiles [ 9] = tile;
+        card_tiles [10] = tile + 1;
+        card_tiles [13] = tile + 2;
+        card_tiles [14] = tile + 3;
+    }
+
+    SMS_loadTileMapArea (4 * col, y, &card_tiles, 4, 6);
+}
+
+/*
  * Renders the cards.
  */
 void render_tiles (void)
@@ -37,51 +91,6 @@ void render_tiles (void)
         4, 0, 0, 5,
         6, 7, 7, 8
     };
-
-
-    uint16_t blank_card [] = {
-         9, 11, 11, 12,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        17, 18, 18, 19
-    };
-
-    uint16_t blank_card_stacked [] = {
-        10, 11, 11, 13,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        17, 18, 18, 19
-    };
-
-    uint16_t black_six_card [] = {
-        158, 11, 11,  12,
-         14, 15, 15,  16,
-         14, 80, 81,  16,
-         14, 82, 83,  16,
-         14, 15, 15,  16,
-         17, 18, 18, 158 | TILE_FLIPPED_X | TILE_FLIPPED_Y
-    };
-    uint16_t red_seven_card [] = {
-        166, 11, 11,  12,
-         14, 15, 15,  16,
-         14, 96, 97,  16,
-         14, 98, 99,  16,
-         14, 15, 15,  16,
-         17, 18, 18, 166 | TILE_FLIPPED_X | TILE_FLIPPED_Y
-    };
-    uint16_t green_eight_card [] = {
-        174,  11,  11,  12,
-         14,  15,  15,  16,
-         14, 112, 113,  16,
-         14, 114, 115,  16,
-         14,  15,  15,  16,
-         17,  18,  18, 174 | TILE_FLIPPED_X | TILE_FLIPPED_Y
-    };
-
 
     /* Dragons, foundations. */
     for (int i = 0; i < 8; i++)
@@ -100,12 +109,15 @@ void render_tiles (void)
         SMS_loadTileMapArea (4 * i, 9, &empty_slot, 4, 6);
     }
 
-    SMS_loadTileMapArea (0,  9, &blank_card, 4, 6);
-    SMS_loadTileMapArea (0, 10, &blank_card_stacked, 4, 6);
-
-    SMS_loadTileMapArea (4,  9, &black_six_card, 4, 6);
-    SMS_loadTileMapArea (8,  9, &red_seven_card, 4, 6);
-    SMS_loadTileMapArea (12,  9, &green_eight_card, 4, 6);
+    render_card (0,  9, 0,        true);
+    render_card (1,  9, 1 + 0x10, true);
+    render_card (2,  9, 2 + 0x20, true);
+    render_card (3,  9, 3,        true);
+    render_card (4,  9, 4 + 0x10, true);
+    render_card (5,  9, 5 + 0x20, true);
+    render_card (6,  9, 6,        true);
+    render_card (7,  9, 7 + 0x10, true);
+    render_card (0, 10, 8 + 0x20, false);
 }
 
 
