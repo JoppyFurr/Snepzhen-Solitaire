@@ -19,8 +19,10 @@ const uint8_t palette [16] = {
     0x19,   /* 1 - (table) Light green */
     0x00,   /* 2 - (card) Black */
     0x3f,   /* 3 - (card) White */
-    0x02,   /* 3 - (card) Red */
-    0x09,   /* 3 - (card) Green */
+    0x02,   /* 4 - (card) Red */
+    0x09,   /* 5 - (card) Green */
+    0x2a,   /* 6 - (card) Light grey */
+    0x15,   /* 7 - (card) Dark grey */
 };
 
 
@@ -43,36 +45,69 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool bottom)
         17, 18, 18, 19
     };
 
+    uint8_t value  = card & 0x0f;
     uint8_t tile;
 
     if ((card & 0x30) == 0x30)
     {
-        /* Special card */
-        /* TODO */
+        if (value == 3)
+        {
+            /* Snep card */
+            card_tiles [0]  = CORNER_SNEP;
+            card_tiles [23] = CORNER_SNEP | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+            for (uint8_t i = 0; i < 16; i++)
+            {
+                card_tiles [i + 4] = ARTWORK_SNEP + i;
+            }
+        }
+        else
+        {
+            /* Print card */
+            card_tiles [0]  = CORNER_PRINTS + (value * 3);
+            card_tiles [1]  = CORNER_PRINTS + (value * 3) + 2;
+            card_tiles [22] = CORNER_PRINTS + (value * 3) + 2 | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+            card_tiles [23] = CORNER_PRINTS + (value * 3) | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+            /* TODO: Print artwork */
+        }
+
+        switch (value)
+        {
+            case 0: /* Claw */
+                break;
+            case 1: /* Paw */
+                break;
+            case 2: /* Hoof */
+                break;
+            case 3: /* Snep */
+            default:
+                break;
+        }
     }
     else
     {
         /* Standard card */
-        uint8_t value  = card & 0x0f;
         uint8_t colour = card >> 4;
 
         /* Card corners */
-        tile = NUMBERS_START + value * 6 + colour * 2;
+        tile = CORNER_NUMBERS + value * 6 + colour * 2;
         card_tiles [ 0] = tile;
         card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
 
-        if (!bottom)
-        {
-            card_tiles [0] += 1;
-            card_tiles [3] = 13;
-        }
-
         /* Chinese numbers */
-        tile = CHINESE_START + value * 12 + colour * 4;
+        tile = ARTWORK_CHINESE + value * 12 + colour * 4;
         card_tiles [ 9] = tile;
         card_tiles [10] = tile + 1;
         card_tiles [13] = tile + 2;
         card_tiles [14] = tile + 3;
+    }
+
+    if (!bottom)
+    {
+        /* Show top of card below */
+        card_tiles [0] += 1;
+        card_tiles [3] = 13;
     }
 
     SMS_loadTileMapArea (4 * col, y, &card_tiles, 4, 6);
@@ -118,6 +153,10 @@ void render_tiles (void)
     render_card (6,  9, 6,        true);
     render_card (7,  9, 7 + 0x10, true);
     render_card (0, 10, 8 + 0x20, false);
+    render_card (1, 10, 0 + 0x30, false);
+    render_card (2, 10, 1 + 0x30, false);
+    render_card (3, 10, 2 + 0x30, false);
+    render_card (4, 10, 3 + 0x30, false);
 }
 
 

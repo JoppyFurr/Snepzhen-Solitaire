@@ -1,6 +1,10 @@
 
-#define CHINESE_START 20
-#define NUMBERS_START 128
+#define CORNER_NUMBERS  128
+#define CORNER_PRINTS   182
+#define CORNER_SNEP     191
+#define ARTWORK_CHINESE  20
+#define ARTWORK_PRINTS  193
+#define ARTWORK_SNEP    193 /* TEMP */
 
 /* Patterns */
 const uint32_t patterns [] = {
@@ -588,14 +592,124 @@ const uint32_t patterns [] = {
     0x00003f18,     0x00003f17,     0x0007380f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
 
-    /* 182 - Paw (black) on-felt */
-    /* 183 - Paw (black) on-card */
+    /*
+     * Card-corner prints.
+     */
 
-    /* 184 - Claw (red) on-felt */
-    /* 185 - Claw (red) on-card */
+    /* 182 - Claw (black) on-felt left */
+    0x00000700,     0x00000f07,     0x00001f0e,     0x00003f1e,
+    0x00003f1a,     0x00003f1c,     0x00003f1e,     0x00003f1f,
+    /* 183 - Claw (black) on-card left */
+    0x00003f18,     0x00003f17,     0x00003f0e,     0x00003f1e,
+    0x00003f1a,     0x00003f1c,     0x00003f1e,     0x00003f1f,
+    /* 184 - Claw (black) right */
+    0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffbf,     0x0000ff7f,     0x0000ffff,     0x0000ffff,
 
-    /* 186 - Hoof (green) on-felt */
-    /* 187 - Hoof (green) on-card */
+    /* 185 - Paw (red) on-felt left */
+    0x00000700,     0x00000f07,     0x00011e0e,     0x00043b1b,
+    0x00013e1e,     0x00033c1c,     0x00033c1c,     0x00003f1f,
+    /* 186 - Paw (red) on-card left */
+    0x00003f18,     0x00003f17,     0x00013e0e,     0x00043b1b,
+    0x00013e1e,     0x00033c1c,     0x00033c1c,     0x00003f1f,
+    /* 187 - Paw (red) right */
+    0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0040bfbf,
+    0x0000ffff,     0x00807f7f,     0x00807f7f,     0x0000ffff,
+
+    /* 188 - Hoof (green) on-felt left */
+    0x00000700,     0x00000f07,     0x00021d0f,     0x0006391f,
+    0x0006391f,     0x00003f1f,     0x00023d1f,     0x00003f1f,
+    /* 189 - Hoof (green) on-card left */
+    0x00003f18,     0x00003f17,     0x00023d0f,     0x0006391f,
+    0x0006391f,     0x00003f1f,     0x00023d1f,     0x00003f1f,
+    /* 190 - Hoof (green) right */
+    0x0000ff00,     0x0000ffff,     0x00807fff,     0x00c03fff,
+    0x00c03fff,     0x0000ffff,     0x00807fff,     0x0000ffff,
+
+    /*
+     * Card-corner snep.
+     */
+
+    /* 191 - Snep on-felt*/
+    0x00000700,     0x00000f07,     0x00001f0f,     0x00063f1f,
+    0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
+    /* 192 - Snep on-card*/
+    0x00003f18,     0x00003f17,     0x00003f0f,     0x00063f1f,
+    0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
+
+    /*
+     * Middle prints.
+     */
+
+    /* 193 - Claw top-left */
+    /* 194 - Claw top-right */
+    /* 195 - Claw bottom-left */
+    /* 196 - Claw bottom-right */
+
+    /* 197 - Paw top-left */
+    /* 198 - Paw top-right */
+    /* 199 - Paw bottom-left */
+    /* 200 - Paw bottom-right */
+
+    /* 201 - Hoof top-left */
+    /* 202 - Hoof top-right */
+    /* 203 - Hoof bottom-left */
+    /* 204 - Hoof bottom-right */
+
+    /*
+     * Snep artwork 4×4 (TODO).
+     */
+
+    /* 205 - Snep artwork (0, 0) */
+    0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
+    0x000f3f19,     0x00073f1c,     0x00073f1c,     0x00033f1e,
+    /* 206 - Snep artwork (1, 0) */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0080ffff,     0x0080ffff,     0x00c0ff7f,
+    /* 207 - Snep artwork (2, 0) */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* 208 - Snep artwork (3, 0) */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    /* 209 - Snep artwork (0, 1) */
+    0x00033f1e,     0x00013f1f,     0x00003f1f,     0x00003f1f,
+    0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
+    /* 210 - Snep artwork (1, 1) */
+    0x00e0ff3f,     0x00f0ff1f,     0x00f8ff8f,     0x007cffc7,
+    0x003effe3,     0x001ffff1,     0x000ffff8,     0x0007fffc,
+    /* 211 - Snep artwork (2, 1) */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0080ffff,     0x00c0ff7f,
+    /* 212 - Snep artwork (3, 1) */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    /* 213 - Snep artwork (0, 2) */
+    0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
+    0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
+    /* 214 - Snep artwork (1, 2) */
+    0x0003fffe,     0x0001ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* 215 - Snep artwork (2, 2) */
+    0x00e0ff3f,     0x00f0ff1f,     0x00f8ff8f,     0x007cffc7,
+    0x003effe3,     0x001ffff1,     0x000ffff8,     0x0007fffc,
+    /* 216 - Snep artwork (3, 2) */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000fcf8,     0x0080fcf8,     0x00c0fc78,
+    /* 217 - Snep artwork (0, 3) */
+    0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
+    0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
+    /* 218 - Snep artwork (1, 3) */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* 219 - Snep artwork (2, 3) */
+    0x0003fffe,     0x0001ffff,     0x0001ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* 220 - Snep artwork (3, 3) */
+    0x00c0fc78,     0x00e0fc38,     0x00e0fc38,     0x00f0fc98,
+    0x00f0fc98,     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,
+
+
 
 };
 
