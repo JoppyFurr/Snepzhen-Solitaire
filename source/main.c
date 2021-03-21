@@ -25,16 +25,30 @@ const uint8_t palette [16] = {
     0x15,   /* 7 - (card) Dark grey */
 };
 
+/* Card bits:
+ *   [6:7] Zero
+ *   [4:5] Card type (0:black, 1:red, 2:green, 3:special)
+ *   [0:3] Card value:
+ *         0-8: Numbers 1-9
+ *         0-2: Claw, paw, hoof prints
+ *         3  : Snep
+ *  0xff: End of stack.
+ */
+uint8_t column [8] [14] = {
+    { 0x00, 0x01, 0x02, 0x03, 0x04, 0xff },
+    { 0x05, 0x06, 0x07, 0x08, 0x10, 0xff },
+    { 0x11, 0x12, 0x13, 0x14, 0x15, 0xff },
+    { 0x16, 0x17, 0x18, 0x20, 0x21, 0xff },
+    { 0x22, 0x23, 0x24, 0x25, 0x26, 0xff },
+    { 0x27, 0x28, 0x30, 0x30, 0x30, 0xff },
+    { 0x30, 0x31, 0x31, 0x31, 0x31, 0xff },
+    { 0x32, 0x32, 0x32, 0x32, 0x33, 0xff }
+};
 
 /*
  * Render one card.
- *
- * Card bits:
- *   [6:7] Zero
- *   [4:5] Card type (0:black, 1:red, 2:green, 3:special)
- *   [0:3] Card value (0-8)
  */
-void render_card (uint8_t col, uint8_t y, uint8_t card, bool bottom)
+void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool covered)
 {
     uint16_t card_tiles [] = {
          9, 11, 11, 12,
@@ -103,14 +117,14 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool bottom)
         card_tiles [14] = tile + 3;
     }
 
-    if (!bottom)
+    if (stacked)
     {
         /* Show top of card below */
         card_tiles [0] += 1;
         card_tiles [3] = 13;
     }
 
-    SMS_loadTileMapArea (4 * col, y, &card_tiles, 4, 6);
+    SMS_loadTileMapArea (4 * col, y, &card_tiles, 4, covered ? 1 : 6);
 }
 
 /*
@@ -139,24 +153,28 @@ void render_tiles (void)
     }
 
     /* Tableau columns */
-    for (int i = 0; i < 8; i++)
+    for (int col = 0; col < 8; col++)
     {
-        SMS_loadTileMapArea (4 * i, 9, &empty_slot, 4, 6);
-    }
+        if (column [col] [0] == 0xff)
+        {
+            SMS_loadTileMapArea (4 * col, 9, &empty_slot, 4, 6);
+        }
+        else
+        {
+            for (uint8_t depth = 0; depth < 13; depth++)
+            {
+                uint8_t card = column [col] [depth];
+                uint8_t next = column [col] [depth + 1];
 
-    render_card (0,  9, 0,        true);
-    render_card (1,  9, 1 + 0x10, true);
-    render_card (2,  9, 2 + 0x20, true);
-    render_card (3,  9, 3,        true);
-    render_card (4,  9, 4 + 0x10, true);
-    render_card (5,  9, 5 + 0x20, true);
-    render_card (6,  9, 6,        true);
-    render_card (7,  9, 7 + 0x10, true);
-    render_card (0, 10, 8 + 0x20, false);
-    render_card (1, 10, 0 + 0x30, false);
-    render_card (2, 10, 1 + 0x30, false);
-    render_card (3, 10, 2 + 0x30, false);
-    render_card (4, 10, 3 + 0x30, false);
+                if (card == 0xff)
+                {
+                    break;
+                }
+
+                render_card (col, 9 + depth, card, depth, next != 0xff);
+            }
+        }
+    }
 }
 
 
