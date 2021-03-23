@@ -47,6 +47,11 @@ uint8_t column [8] [14] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
 
+/* Cursor */
+uint8_t cursor_x = 32;
+uint8_t cursor_y = 32;
+uint8_t cursor_id [4] = { 0 };
+
 
 /*
  * Deal a new game.
@@ -224,6 +229,18 @@ void render_tiles (void)
 
 
 /*
+ * Render cursor as sprites.
+ */
+void render_cursor (void)
+{
+    SMS_updateSpritePosition (cursor_id [0], cursor_x,     cursor_y);
+    SMS_updateSpritePosition (cursor_id [1], cursor_x + 8, cursor_y);
+    SMS_updateSpritePosition (cursor_id [2], cursor_x,     cursor_y + 8);
+    SMS_updateSpritePosition (cursor_id [3], cursor_x + 8, cursor_y + 8);
+}
+
+
+/*
  * Entry point.
  */
 void main (void)
@@ -232,7 +249,19 @@ void main (void)
     SMS_loadBGPalette (palette);
     SMS_loadSpritePalette (palette);
     SMS_setBackdropColor (0);
+
     SMS_loadTiles (patterns, 0, sizeof (patterns));
+
+    SMS_useFirstHalfTilesforSprites (true);
+    SMS_initSprites ();
+    cursor_id [0] = SMS_addSprite (0, 0, CURSOR_WHITE);
+    cursor_id [1] = SMS_addSprite (0, 0, CURSOR_WHITE + 1);
+    cursor_id [2] = SMS_addSprite (0, 0, CURSOR_WHITE + 2);
+    cursor_id [3] = SMS_addSprite (0, 0, CURSOR_WHITE + 3);
+    render_cursor ();
+    SMS_finalizeSprites ();
+    SMS_copySpritestoSAT ();
+
     SMS_displayOn ();
 
     deal ();

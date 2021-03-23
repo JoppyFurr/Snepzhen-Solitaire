@@ -4,7 +4,10 @@
 #define CORNER_SNEP     191
 #define ARTWORK_CHINESE  20
 #define ARTWORK_PRINTS  193
-#define ARTWORK_SNEP    193 /* TEMP */
+#define ARTWORK_SNEP    205
+#define CURSOR_BLACK    221
+#define CURSOR_SILVER   225
+#define CURSOR_WHITE    229
 
 /* Patterns */
 const uint32_t patterns [] = {
@@ -642,19 +645,43 @@ const uint32_t patterns [] = {
      */
 
     /* 193 - Claw top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 194 - Claw top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 195 - Claw bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 196 - Claw bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
     /* 197 - Paw top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 198 - Paw top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 199 - Paw bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 200 - Paw bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
     /* 201 - Hoof top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 202 - Hoof top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 203 - Hoof bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     /* 204 - Hoof bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
     /*
      * Snep artwork 4×4 (TODO).
@@ -709,6 +736,44 @@ const uint32_t patterns [] = {
     0x00c0fc78,     0x00e0fc38,     0x00e0fc38,     0x00f0fc98,
     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,
 
+    /* 221 - Cursor (black) top-left */
+    0x0000c0c0,     0x0000e0a0,     0x0000f090,     0x0000f888,
+    0x0000fc84,     0x0000fe82,     0x0000ff81,     0x0000ff80,
+    /* 222 - Cursor (black) top-right */
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    0x00000000,     0x00000000,     0x00000000,     0x00008080,
+    /* 223 - Cursor (black) bottom-left */
+    0x0000ff80,     0x0000ff83,     0x0000fe92,     0x0000efa9,
+    0x0000cfc9,     0x00008784,     0x00000704,     0x00000303,
+    /* 224 - Cursor (black) bottom-right */
+    0x0000c040,     0x0000e0e0,     0x00000000,     0x00000000,
+    0x00000000,     0x00008080,     0x00008080,     0x00008080,
+
+    /* 225 - Cursor (silver) top-left */
+    0x00008000,     0x0080c080,     0x00c0e080,     0x00e0f080,
+    0x00b0f8c0,     0x00b8fcc0,     0x009cfee0,     0x009effe0,
+    /* 226 - Cursor (silver) top-right */
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    /* 227 - Cursor (silver) bottom-left */
+    0x008ffff0,     0x0090ffe0,     0x00a4fec8,     0x00caef8c,
+    0x008acf8c,     0x00058706,     0x00070704,     0x00000300,
+    /* 228 - Cursor (silver) bottom-right */
+    0x00008000,     0x0000c000,     0x00000000,     0x00000000,
+    0x00000000,     0x00008000,     0x00008000,     0x00008000,
+
+    /* 229 - Cursor (white) top-left */
+    0x0000c000,     0x0000e040,     0x0000f060,     0x0000f870,
+    0x0000fc78,     0x0000fe7c,     0x0000ff7e,     0x0000ff7f,
+    /* 230 - Cursor (white) top-right */
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    0x00000000,     0x00000000,     0x00000000,     0x00008000,
+    /* 231 - Cursor (white) bottom-left */
+    0x0000ff7f,     0x0000ff7c,     0x0000fe6c,     0x0000ef46,
+    0x0000cf06,     0x00008703,     0x00000703,     0x00000300,
+    /* 232 - Cursor (white) bottom-right */
+    0x0000c080,     0x0000e000,     0x00000000,     0x00000000,
+    0x00000000,     0x00008000,     0x00008000,     0x00008000,
 
 
 };
