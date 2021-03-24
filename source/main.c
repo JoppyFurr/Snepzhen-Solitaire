@@ -125,20 +125,11 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool cover
             card_tiles [22] = CORNER_PRINTS + (value * 3) + 2 | TILE_FLIPPED_X | TILE_FLIPPED_Y;
             card_tiles [23] = CORNER_PRINTS + (value * 3) | TILE_FLIPPED_X | TILE_FLIPPED_Y;
 
-            /* TODO: Print artwork */
-        }
-
-        switch (value)
-        {
-            case 0: /* Claw */
-                break;
-            case 1: /* Paw */
-                break;
-            case 2: /* Hoof */
-                break;
-            case 3: /* Snep */
-            default:
-                break;
+            tile = ARTWORK_PRINTS + value * 4;
+            card_tiles [ 9] = tile;
+            card_tiles [10] = tile + 1;
+            card_tiles [13] = tile + 2;
+            card_tiles [14] = tile + 3;
         }
     }
     else
@@ -246,10 +237,10 @@ void main (void)
 
     SMS_useFirstHalfTilesforSprites (true);
     SMS_initSprites ();
-    cursor_id [0] = SMS_addSprite (0, 0, CURSOR_WHITE);
-    cursor_id [1] = SMS_addSprite (0, 0, CURSOR_WHITE + 1);
-    cursor_id [2] = SMS_addSprite (0, 0, CURSOR_WHITE + 2);
-    cursor_id [3] = SMS_addSprite (0, 0, CURSOR_WHITE + 3);
+    cursor_id [0] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE    ));
+    cursor_id [1] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 1));
+    cursor_id [2] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 2));
+    cursor_id [3] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 3));
     render_cursor ();
     SMS_finalizeSprites ();
     SMS_copySpritestoSAT ();
