@@ -10,6 +10,7 @@
 
 #include "SMSlib.h"
 
+#include "rng.h"
 #include "patterns.c"
 
 
@@ -56,20 +57,11 @@ uint8_t cursor_id [4] = { 0 };
 /*
  * Deal a new game.
  */
-uint8_t seed = 0;
 void deal (void)
 {
     uint8_t i;
 
-    /* Use the R register as a source of randomness */
-    __asm
-        push    af
-        ld      a,          r
-        ld      (_seed),    a
-        pop     af
-    __endasm;
-
-    srand (seed);
+    rng_seed ();
 
     /* Shuffle the deck */
     for (i = 39; i >= 1; i--)
