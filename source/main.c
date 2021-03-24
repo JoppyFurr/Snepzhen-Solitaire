@@ -13,7 +13,6 @@
 #include "rng.h"
 #include "patterns.c"
 
-
 /* Palette */
 const uint8_t palette [16] = {
     0x04,   /* 0 - (table) Dark green */
@@ -49,8 +48,8 @@ uint8_t column [8] [14] = {
 };
 
 /* Cursor */
-uint8_t cursor_x = 32;
-uint8_t cursor_y = 32;
+uint8_t cursor_stack = 0;
+uint8_t cursor_depth = 0;
 uint8_t cursor_id [4] = { 0 };
 
 
@@ -214,8 +213,28 @@ void render_tiles (void)
 /*
  * Render cursor as sprites.
  */
-void render_cursor (void)
+
+enum cursor_stack_e
 {
+    COLUMN_1 = 0,
+    COLUMN_2,
+    COLUMN_3,
+    COLUMN_4,
+    COLUMN_5,
+    COLUMN_6,
+    COLUMN_7,
+    COLUMN_8,
+    STACK_MAX
+};
+
+void update_cursor (void)
+{
+    uint8_t cursor_x;
+    uint8_t cursor_y;
+
+    cursor_x = cursor_stack * 32 + 16;
+    cursor_y = cursor_depth * 8 + 76;
+
     SMS_updateSpritePosition (cursor_id [0], cursor_x,     cursor_y);
     SMS_updateSpritePosition (cursor_id [1], cursor_x + 8, cursor_y);
     SMS_updateSpritePosition (cursor_id [2], cursor_x,     cursor_y + 8);
@@ -241,8 +260,7 @@ void main (void)
     cursor_id [1] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 1));
     cursor_id [2] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 2));
     cursor_id [3] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 3));
-    render_cursor ();
-    SMS_finalizeSprites ();
+    update_cursor ();
     SMS_copySpritestoSAT ();
 
     SMS_displayOn ();
@@ -253,7 +271,46 @@ void main (void)
     /* Main loop */
     while (true)
     {
+        static uint16_t keys_previous = 0;
+        uint16_t keys = SMS_getKeysStatus ();
+        bool sprite_update = false;
+
+        /* Logic */
+        switch (keys & ~keys_previous)
+        {
+            case PORT_A_KEY_UP:
+                cursor_depth = cursor_depth - 1;
+                update_cursor ();
+                sprite_update = true;
+                break;
+            case PORT_A_KEY_DOWN:
+                cursor_depth = cursor_depth + 1;
+                update_cursor ();
+                sprite_update = true;
+                break;
+            case PORT_A_KEY_LEFT:
+                cursor_stack = (cursor_stack - 1) % STACK_MAX;
+                update_cursor ();
+                sprite_update = true;
+                break;
+            case PORT_A_KEY_RIGHT:
+                cursor_stack = (cursor_stack + 1) % STACK_MAX;
+                update_cursor ();
+                sprite_update = true;
+                break;
+            default:
+                break;
+        }
+
+        keys_previous = keys;
+
+        /* Render */
         SMS_waitForVBlank ();
+
+        if (sprite_update)
+        {
+            SMS_copySpritestoSAT ();
+        }
     }
 }
 
