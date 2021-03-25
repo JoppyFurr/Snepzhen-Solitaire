@@ -25,6 +25,8 @@ const uint8_t palette [16] = {
     0x15,   /* 7 - (card) Dark grey */
 };
 
+bool sprite_update = false;
+
 /* Card bits:
  *   [6:7] Zero
  *   [4:5] Card type (0:black, 1:red, 2:green, 3:special)
@@ -48,9 +50,100 @@ uint8_t column [8] [14] = {
 };
 
 /* Cursor */
-uint8_t cursor_stack = 0;
-uint8_t cursor_depth = 0;
+enum cursor_stack_e
+{
+    CURSOR_COLUMN_1 = 0,
+    CURSOR_COLUMN_2,
+    CURSOR_COLUMN_3,
+    CURSOR_COLUMN_4,
+    CURSOR_COLUMN_5,
+    CURSOR_COLUMN_6,
+    CURSOR_COLUMN_7,
+    CURSOR_COLUMN_8,
+    CURSOR_DRAGON_SLOT_1,
+    CURSOR_DRAGON_SLOT_2,
+    CURSOR_DRAGON_SLOT_3,
+    CURSOR_DRAGON_BUTTONS,
+    CURSOR_FOUNDATION_SNEP,
+    CURSOR_FOUNDATION_1,
+    CURSOR_FOUNDATION_2,
+    CURSOR_FOUNDATION_3,
+    CURSOR_STACK_MAX
+};
+
+#define CURSOR_DEPTH_MAX 15
+uint8_t cursor_stack = CURSOR_COLUMN_1;
+uint8_t cursor_depth = CURSOR_DEPTH_MAX;
 uint8_t cursor_id [4] = { 0 };
+
+
+/*
+ * Render cursor as sprites.
+ */
+void move_cursor (uint8_t direction)
+{
+    uint8_t cursor_x;
+    uint8_t cursor_y;
+    uint8_t stack_max_depth = 0;
+
+    sprite_update = true;
+
+    /* First, perform the motion */
+    switch (direction)
+    {
+        case PORT_A_KEY_LEFT:
+            cursor_stack = (cursor_stack + (CURSOR_STACK_MAX - 1)) % CURSOR_STACK_MAX;
+            cursor_depth = CURSOR_DEPTH_MAX;
+            break;
+        case PORT_A_KEY_RIGHT:
+            cursor_stack = (cursor_stack + 1) % CURSOR_STACK_MAX;
+            cursor_depth = CURSOR_DEPTH_MAX;
+            break;
+        case PORT_A_KEY_UP:
+            if (cursor_depth > 0)
+            {
+                cursor_depth--;
+            }
+            break;
+        case PORT_A_KEY_DOWN:
+            cursor_depth++;
+            break;
+    }
+
+    /* Next, calculate the maximum depth for the column */
+    if (cursor_stack <= CURSOR_COLUMN_8 && column [cursor_stack] [0] != 0xff)
+    {
+        for (stack_max_depth == 0; stack_max_depth < CURSOR_DEPTH_MAX; stack_max_depth++)
+        {
+            if (column [cursor_stack] [stack_max_depth + 1] == 0xff)
+            {
+                break;
+            }
+        }
+    }
+
+    /* Enforce the limit */
+    if (cursor_depth > stack_max_depth)
+    {
+        cursor_depth = stack_max_depth;
+    }
+
+    /* Cursor coordinates */
+    cursor_x = (cursor_stack & 0x07) * 32 + 16;
+    if (cursor_stack > CURSOR_COLUMN_8)
+    {
+        cursor_y = 12;
+    }
+    else
+    {
+        cursor_y = cursor_depth * 8 + 76;
+    }
+
+    SMS_updateSpritePosition (cursor_id [0], cursor_x,     cursor_y);
+    SMS_updateSpritePosition (cursor_id [1], cursor_x + 8, cursor_y);
+    SMS_updateSpritePosition (cursor_id [2], cursor_x,     cursor_y + 8);
+    SMS_updateSpritePosition (cursor_id [3], cursor_x + 8, cursor_y + 8);
+}
 
 
 /*
@@ -83,6 +176,10 @@ void deal (void)
 
         column [col] [5] = 0xff;
     }
+
+    cursor_stack = CURSOR_COLUMN_1;
+    cursor_depth = CURSOR_DEPTH_MAX;
+    move_cursor (PORT_A_KEY_DOWN);
 }
 
 
@@ -211,38 +308,6 @@ void render_tiles (void)
 
 
 /*
- * Render cursor as sprites.
- */
-
-enum cursor_stack_e
-{
-    COLUMN_1 = 0,
-    COLUMN_2,
-    COLUMN_3,
-    COLUMN_4,
-    COLUMN_5,
-    COLUMN_6,
-    COLUMN_7,
-    COLUMN_8,
-    STACK_MAX
-};
-
-void update_cursor (void)
-{
-    uint8_t cursor_x;
-    uint8_t cursor_y;
-
-    cursor_x = cursor_stack * 32 + 16;
-    cursor_y = cursor_depth * 8 + 76;
-
-    SMS_updateSpritePosition (cursor_id [0], cursor_x,     cursor_y);
-    SMS_updateSpritePosition (cursor_id [1], cursor_x + 8, cursor_y);
-    SMS_updateSpritePosition (cursor_id [2], cursor_x,     cursor_y + 8);
-    SMS_updateSpritePosition (cursor_id [3], cursor_x + 8, cursor_y + 8);
-}
-
-
-/*
  * Entry point.
  */
 void main (void)
@@ -260,7 +325,7 @@ void main (void)
     cursor_id [1] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 1));
     cursor_id [2] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 2));
     cursor_id [3] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 3));
-    update_cursor ();
+    move_cursor (PORT_A_KEY_DOWN);
     SMS_copySpritestoSAT ();
 
     SMS_displayOn ();
@@ -273,35 +338,9 @@ void main (void)
     {
         static uint16_t keys_previous = 0;
         uint16_t keys = SMS_getKeysStatus ();
-        bool sprite_update = false;
 
         /* Logic */
-        switch (keys & ~keys_previous)
-        {
-            case PORT_A_KEY_UP:
-                cursor_depth = cursor_depth - 1;
-                update_cursor ();
-                sprite_update = true;
-                break;
-            case PORT_A_KEY_DOWN:
-                cursor_depth = cursor_depth + 1;
-                update_cursor ();
-                sprite_update = true;
-                break;
-            case PORT_A_KEY_LEFT:
-                cursor_stack = (cursor_stack - 1) % STACK_MAX;
-                update_cursor ();
-                sprite_update = true;
-                break;
-            case PORT_A_KEY_RIGHT:
-                cursor_stack = (cursor_stack + 1) % STACK_MAX;
-                update_cursor ();
-                sprite_update = true;
-                break;
-            default:
-                break;
-        }
-
+        move_cursor (keys & ~keys_previous);
         keys_previous = keys;
 
         /* Render */
@@ -310,6 +349,7 @@ void main (void)
         if (sprite_update)
         {
             SMS_copySpritestoSAT ();
+            sprite_update = false;
         }
     }
 }
