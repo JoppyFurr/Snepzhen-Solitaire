@@ -36,6 +36,9 @@ bool sprite_update = false;
  *         3  : Snep
  *  0xff: End of stack.
  */
+#define TYPE_BITS   0x30
+#define VALUE_BITS  0x0f
+
 uint8_t deck [] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
@@ -165,7 +168,7 @@ void cursor_pick (void)
             uint8_t card = column [cursor_stack] [cursor_depth + i];
 
             /* Special cards cannot be stacked */
-            if ((card & 0x30) == 0x30)
+            if ((card & TYPE_BITS) == 0x30)
             {
                 return;
             }
@@ -173,13 +176,13 @@ void cursor_pick (void)
             if (i > 0)
             {
                 /* Colours must alternate */
-                if ((card & 0x30) == (previous_card & 0x30))
+                if ((card & TYPE_BITS) == (previous_card & TYPE_BITS))
                 {
                     return;
                 }
 
                 /* Value must decrease */
-                if ((card & 0x0f) != (previous_card & 0x0f) - 1)
+                if ((card & VALUE_BITS) != (previous_card & VALUE_BITS) - 1)
                 {
                     return;
                 }
@@ -231,7 +234,7 @@ void cursor_place (void)
         }
 
         /* Value must decrease */
-        if ((stack_card & 0x0f) != (held [0] & 0x0f) + 1)
+        if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) + 1)
         {
             return;
         }
@@ -311,7 +314,7 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool cover
         17, 18, 18, 19
     };
 
-    uint8_t value  = card & 0x0f;
+    uint8_t value = card & VALUE_BITS;
     uint8_t tile;
 
     if ((card & 0x30) == 0x30)
