@@ -261,6 +261,9 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool cover
  */
 void render_tiles (void)
 {
+    uint16_t blank_line [] = {
+        0, 0, 0, 0
+    };
     uint16_t empty_slot [] = {
         1, 2, 2, 3,
         4, 0, 0, 5,
@@ -290,7 +293,8 @@ void render_tiles (void)
         }
         else
         {
-            for (uint8_t depth = 0; depth < 13; depth++)
+            uint8_t depth;
+            for (depth = 0; depth < 13; depth++)
             {
                 uint8_t card = column [col] [depth];
                 uint8_t next = column [col] [depth + 1];
@@ -301,6 +305,14 @@ void render_tiles (void)
                 }
 
                 render_card (col, 9 + depth, card, depth, next != 0xff);
+            }
+
+            /* Clear area below stack */
+            depth += 5;
+            while (depth < 18)
+            {
+                SMS_loadTileMapArea (4 * col, 9 + depth, &blank_line, 4, 1);
+                depth++;
             }
         }
     }
