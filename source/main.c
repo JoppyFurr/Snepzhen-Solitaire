@@ -651,6 +651,21 @@ void main (void)
                 cursor_place ();
             }
         }
+        else if (keys_pressed & PORT_A_KEY_2)
+        {
+            if (stack [HELD] [0] == 0xff)
+            {
+                /* TODO: Move card to foundation */
+            }
+            else
+            {
+                /* Cancel the currently held cards */
+                cursor_stack = came_from;
+                cursor_depth = CURSOR_DEPTH_MAX;
+                cursor_move (PORT_A_KEY_DOWN);
+                cursor_place ();
+            }
+        }
 
         keys_previous = keys;
 
