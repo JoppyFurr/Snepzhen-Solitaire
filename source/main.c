@@ -50,6 +50,7 @@ uint8_t column [8] [16] = {
 };
 
 uint8_t held [16] = { 0xff };
+uint8_t came_from = 0xff;
 
 /* Cursor */
 enum cursor_stack_e
@@ -196,6 +197,8 @@ void cursor_pick (void)
     }
     held [i] = 0xff;
 
+    came_from = cursor_stack;
+
     /* Point at the new top card in the stack */
     cursor_depth = CURSOR_DEPTH_MAX;
     cursor_move (PORT_A_KEY_DOWN);
@@ -209,7 +212,30 @@ void cursor_place (void)
 {
     uint8_t i;
 
-    /* TODO: Determine if placement is allowed */
+    /* Check if cards are allowed to move here */
+    if (cursor_stack != came_from)
+    {
+        uint8_t stack_card = column [cursor_stack] [cursor_depth];
+
+        /* Special cards cannot be stacked */
+        if (((stack_card & 0x30) == 0x30) ||
+            ((held [0]   & 0x30) == 0x30))
+        {
+            return;
+        }
+
+        /* Colours must alternate */
+        if ((stack_card & 0x30) == (held [0] & 0x30))
+        {
+            return;
+        }
+
+        /* Value must decrease */
+        if ((stack_card & 0x0f) != (held [0] & 0x0f) + 1)
+        {
+            return;
+        }
+    }
 
     /* Place at the first empty slot, not the last full slot */
     if (column [cursor_stack] [0] != 0xff)
@@ -224,6 +250,8 @@ void cursor_place (void)
         held [i] = 0xff;
     }
     column [cursor_stack] [cursor_depth + i] = 0xff;
+
+    came_from = 0xff;
 
     /* Point at the new top card in the stack */
     cursor_depth = CURSOR_DEPTH_MAX;
