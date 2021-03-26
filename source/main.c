@@ -49,7 +49,9 @@ uint8_t deck [] = {
 
 uint8_t stack [15] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
-    { 0xff }, { 0xff }, { 0xff }, { 0xff }
+    { 0xff }, { 0xff }, { 0xff }, { 0xff },
+    { 0xff }, { 0xff }, { 0xff }, { 0xff },
+    { 0xff }, { 0xff }, { 0xff }
 };
 
 uint8_t held [16] = { 0xff };
@@ -117,9 +119,9 @@ void cursor_move (uint8_t direction)
     }
 
     /* Next, calculate the maximum depth for the column */
-    if (cursor_stack <= CURSOR_COLUMN_8 && stack [cursor_stack] [0] != 0xff)
+    if (stack [cursor_stack] [0] != 0xff)
     {
-        for (stack_max_depth == 0; stack_max_depth < CURSOR_DEPTH_MAX; stack_max_depth++)
+        for (stack_max_depth = 0; stack_max_depth < CURSOR_DEPTH_MAX; stack_max_depth++)
         {
             if (stack [cursor_stack] [stack_max_depth + 1] == 0xff)
             {
@@ -220,24 +222,62 @@ void cursor_place (void)
     {
         uint8_t stack_card = stack [cursor_stack] [cursor_depth];
 
-        /* Special cards cannot be stacked */
-        if (((stack_card & 0x30) == 0x30) ||
-            ((held [0]   & 0x30) == 0x30))
+        if (cursor_stack <= CURSOR_COLUMN_8)
         {
+            if (stack_card != 0xff)
+            {
+                /* Special cards cannot be stacked */
+                if (((stack_card & 0x30) == 0x30) ||
+                    ((held [0]   & 0x30) == 0x30))
+                {
+                    return;
+                }
+
+                /* Colours must alternate */
+                if ((stack_card & 0x30) == (held [0] & 0x30))
+                {
+                    return;
+                }
+
+                /* Value must decrease */
+                if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) + 1)
+                {
+                    return;
+                }
+            }
+        }
+        else if (cursor_stack <= CURSOR_DRAGON_SLOT_3)
+        {
+            /* Only single cards may be placed in the dragon slots */
+            if ((stack_card != 0xff) || (held [1] != 0xff))
+            {
+                return;
+            }
+        }
+        else if (cursor_stack <= CURSOR_DRAGON_BUTTONS)
+        {
+            /* Not a card slot */
+            return;
+        }
+        else if (cursor_stack <= CURSOR_FOUNDATION_SNEP)
+        {
+            /* Only the snep card may be placed in the snep card slot */
+            if (held [0] != 0x33)
+            {
+                return;
+            }
+        }
+        else if (cursor_stack <= CURSOR_FOUNDATION_3)
+        {
+            /* TODO */
+            return;
+        }
+        else
+        {
+            /* Invalid */
             return;
         }
 
-        /* Colours must alternate */
-        if ((stack_card & 0x30) == (held [0] & 0x30))
-        {
-            return;
-        }
-
-        /* Value must decrease */
-        if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) + 1)
-        {
-            return;
-        }
     }
 
     /* Place at the first empty slot, not the last full slot */
@@ -390,14 +430,23 @@ void render_tiles (void)
         6, 7, 7, 8
     };
 
-    /* Dragons, foundations. */
-    for (int i = 0; i < 8; i++)
+    /* Dragons */
+    for (uint8_t i = 0; i < 3; i++)
     {
-        if (i == 3)
+        if (stack [i + 8] [0] != 0xff)
         {
-            /* A gap after the third slot */
-            continue;
+            render_card (i, 1, stack [i + 8] [0], false, false);
         }
+        else
+        {
+            SMS_loadTileMapArea (4 * i, 1, &empty_slot, 4, 6);
+        }
+    }
+
+    /* Foundations */
+    for (uint8_t i = 4; i < 8; i++)
+    {
+        /* TODO */
         SMS_loadTileMapArea (4 * i, 1, &empty_slot, 4, 6);
     }
 
@@ -424,7 +473,6 @@ void render_tiles (void)
 
                 render_card (col, 9 + depth, card, depth, next != 0xff);
             }
-
         }
 
         /* Clear area below stack */
