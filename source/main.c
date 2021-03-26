@@ -155,7 +155,38 @@ void cursor_pick (void)
 {
     uint8_t i;
 
-    /* TODO: Determine if picking up is allowed */
+    /* Check if the selected cards can be picked up together */
+    if (column [cursor_stack] [cursor_depth + 1] != 0xff)
+    {
+        uint8_t previous_card = 0;
+        for (i = 0; column [cursor_stack] [cursor_depth + i] != 0xff; i++)
+        {
+            uint8_t card = column [cursor_stack] [cursor_depth + i];
+
+            /* Special cards cannot be stacked */
+            if ((card & 0x30) == 0x30)
+            {
+                return;
+            }
+
+            if (i > 0)
+            {
+                /* Colours must alternate */
+                if ((card & 0x30) == (previous_card & 0x30))
+                {
+                    return;
+                }
+
+                /* Value must decrease */
+                if ((card & 0x0f) != (previous_card & 0x0f) - 1)
+                {
+                    return;
+                }
+            }
+
+            previous_card = card;
+        }
+    }
 
     /* Move the selected stack into the hand */
     for (i = 0; column [cursor_stack] [cursor_depth + i] != 0xff; i++)
