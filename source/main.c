@@ -44,10 +44,12 @@ uint8_t deck [] = {
     0x32, 0x32, 0x32, 0x33
 };
 
-uint8_t column [8] [14] = {
+uint8_t column [8] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
+
+uint8_t held [16] = { 0xff };
 
 /* Cursor */
 enum cursor_stack_e
@@ -80,7 +82,7 @@ uint8_t cursor_id [4] = { 0 };
 /*
  * Render cursor as sprites.
  */
-void move_cursor (uint8_t direction)
+void cursor_move (uint8_t direction)
 {
     uint8_t cursor_x;
     uint8_t cursor_y;
@@ -100,7 +102,7 @@ void move_cursor (uint8_t direction)
             cursor_depth = CURSOR_DEPTH_MAX;
             break;
         case PORT_A_KEY_UP:
-            if (cursor_depth > 0)
+            if (held [0] == 0xff && cursor_depth > 0)
             {
                 cursor_depth--;
             }
@@ -147,6 +149,59 @@ void move_cursor (uint8_t direction)
 
 
 /*
+ * Pick up the selected card.
+ */
+void cursor_pick (void)
+{
+    uint8_t i;
+
+    /* TODO: Determine if picking up is allowed */
+
+    /* Move the selected stack into the hand */
+    for (i = 0; column [cursor_stack] [cursor_depth + i] != 0xff; i++)
+    {
+        held [i] = column [cursor_stack] [cursor_depth + i];
+        column [cursor_stack] [cursor_depth + i] = 0xff;
+    }
+    held [i] = 0xff;
+
+    /* Point at the new top card in the stack */
+    cursor_depth = CURSOR_DEPTH_MAX;
+    cursor_move (PORT_A_KEY_DOWN);
+}
+
+
+/*
+ * Place the selected card.
+ */
+void cursor_place (void)
+{
+    uint8_t i;
+
+    /* TODO: Determine if placement is allowed */
+
+    /* Place at the first empty slot, not the last full slot */
+    if (column [cursor_stack] [0] != 0xff)
+    {
+        cursor_depth++;
+    }
+
+    /* Move the cards from the hand */
+    for (i = 0; held [i] != 0xff; i++)
+    {
+        column [cursor_stack] [cursor_depth + i] = held [i];
+        held [i] = 0xff;
+    }
+    column [cursor_stack] [cursor_depth + i] = 0xff;
+
+    /* Point at the new top card in the stack */
+    cursor_depth = CURSOR_DEPTH_MAX;
+    cursor_move (PORT_A_KEY_DOWN);
+}
+
+
+
+/*
  * Deal a new game.
  */
 void deal (void)
@@ -179,7 +234,7 @@ void deal (void)
 
     cursor_stack = CURSOR_COLUMN_1;
     cursor_depth = CURSOR_DEPTH_MAX;
-    move_cursor (PORT_A_KEY_DOWN);
+    cursor_move (PORT_A_KEY_DOWN);
 }
 
 
@@ -287,13 +342,14 @@ void render_tiles (void)
     /* Tableau columns */
     for (int col = 0; col < 8; col++)
     {
+        uint8_t depth;
         if (column [col] [0] == 0xff)
         {
             SMS_loadTileMapArea (4 * col, 9, &empty_slot, 4, 6);
+            depth = 1;
         }
         else
         {
-            uint8_t depth;
             for (depth = 0; depth < 13; depth++)
             {
                 uint8_t card = column [col] [depth];
@@ -307,13 +363,14 @@ void render_tiles (void)
                 render_card (col, 9 + depth, card, depth, next != 0xff);
             }
 
-            /* Clear area below stack */
-            depth += 5;
-            while (depth < 18)
-            {
-                SMS_loadTileMapArea (4 * col, 9 + depth, &blank_line, 4, 1);
-                depth++;
-            }
+        }
+
+        /* Clear area below stack */
+        depth += 5;
+        while (depth < 18)
+        {
+            SMS_loadTileMapArea (4 * col, 9 + depth, &blank_line, 4, 1);
+            depth++;
         }
     }
 }
@@ -337,7 +394,7 @@ void main (void)
     cursor_id [1] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 1));
     cursor_id [2] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 2));
     cursor_id [3] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 3));
-    move_cursor (PORT_A_KEY_DOWN);
+    cursor_move (PORT_A_KEY_DOWN);
     SMS_copySpritestoSAT ();
 
     SMS_displayOn ();
@@ -350,9 +407,25 @@ void main (void)
     {
         static uint16_t keys_previous = 0;
         uint16_t keys = SMS_getKeysStatus ();
+        uint16_t keys_pressed = (keys & ~keys_previous);
 
         /* Logic */
-        move_cursor (keys & ~keys_previous);
+        cursor_move (keys_pressed);
+        if (keys_pressed & PORT_A_KEY_1)
+        {
+            if (held [0] == 0xff)
+            {
+                cursor_pick ();
+            }
+            else
+            {
+                cursor_place ();
+            }
+
+            /* Update cards in background layer */
+            render_tiles ();
+        }
+
         keys_previous = keys;
 
         /* Render */
