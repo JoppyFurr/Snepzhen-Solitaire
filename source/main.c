@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "SMSlib.h"
 
@@ -47,14 +48,15 @@ uint8_t deck [] = {
     0x32, 0x32, 0x32, 0x33
 };
 
-uint8_t stack [15] [16] = {
+#define HELD 15
+
+uint8_t stack [16] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
-    { 0xff }, { 0xff }, { 0xff }
+    { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
 
-uint8_t held [16] = { 0xff };
 uint8_t came_from = 0xff;
 
 /* Cursor */
@@ -104,6 +106,80 @@ uint8_t top_card (uint8_t s)
 
 
 /*
+ * Render a single card to an array of tile indexes.
+ */
+void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
+{
+    uint8_t value = card & VALUE_BITS;
+    uint8_t tile;
+
+    uint16_t card_tiles [] = {
+         9, 11, 11, 12,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        14, 15, 15, 16,
+        17, 18, 18, 19
+    };
+
+    if ((card & 0x30) == 0x30)
+    {
+        if (value == 3)
+        {
+            /* Snep card */
+            card_tiles [0]  = CORNER_SNEP;
+            card_tiles [23] = CORNER_SNEP | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+            for (uint8_t i = 0; i < 16; i++)
+            {
+                card_tiles [i + 4] = ARTWORK_SNEP + i;
+            }
+        }
+        else
+        {
+            /* Print card */
+            card_tiles [0]  = CORNER_PRINTS + (value * 3);
+            card_tiles [1]  = CORNER_PRINTS + (value * 3) + 2;
+            card_tiles [22] = CORNER_PRINTS + (value * 3) + 2 | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+            card_tiles [23] = CORNER_PRINTS + (value * 3) | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+            tile = ARTWORK_PRINTS + value * 4;
+            card_tiles [ 9] = tile;
+            card_tiles [10] = tile + 1;
+            card_tiles [13] = tile + 2;
+            card_tiles [14] = tile + 3;
+        }
+    }
+    else
+    {
+        /* Standard card */
+        uint8_t colour = card >> 4;
+
+        /* Card corners */
+        tile = CORNER_NUMBERS + value * 6 + colour * 2;
+        card_tiles [ 0] = tile;
+        card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+
+        /* Chinese numbers */
+        tile = ARTWORK_CHINESE + value * 12 + colour * 4;
+        card_tiles [ 9] = tile;
+        card_tiles [10] = tile + 1;
+        card_tiles [13] = tile + 2;
+        card_tiles [14] = tile + 3;
+    }
+
+    if (stacked)
+    {
+        /* Show top of card below */
+        card_tiles [0] += 1;
+        card_tiles [3] = 13;
+    }
+
+    memcpy (buf, card_tiles, sizeof (card_tiles));
+}
+
+
+/*
  * Render the cursor and its held cards, as sprites.
  */
 void cursor_render (void)
@@ -125,10 +201,46 @@ void cursor_render (void)
         cursor_y = cursor_depth * 8 + 76;
     }
 
+    /* Offset the cursor if we're holding a card */
+    if (stack [HELD] [0] != 0xff)
+    {
+        cursor_x += 2;
+        cursor_y += 12;
+    }
+
     SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_WHITE    ));
     SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_WHITE + 1));
     SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_WHITE + 2));
     SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_WHITE + 3));
+
+    /* Render held cards as sprites */
+    if (stack [HELD] [0] != 0xff)
+    {
+        uint8_t card_x = cursor_x - 16;
+        uint8_t top = top_card (HELD);
+
+        for (uint8_t i = top; i != 0xff; i--)
+        {
+            uint8_t card_y = cursor_y + (8 * i) - 4;
+            uint16_t card_tiles [24];
+
+            render_card_tiles (card_tiles, stack [HELD] [i], i > 0);
+
+            for (uint8_t y = 0; y < 6; y++)
+            {
+                for (uint8_t x = 0; x < 4; x++)
+                {
+                    SMS_addSprite (card_x + (8 * x), card_y + (8 * y), (uint8_t) card_tiles [x + (4 * y)]);
+                }
+
+                /* Only the top card is fully drawn */
+                if (i != top)
+                {
+                    break;
+                }
+            }
+        }
+    }
 
     sprite_update = true;
 }
@@ -155,7 +267,7 @@ void cursor_move (uint8_t direction)
             break;
         case PORT_A_KEY_UP:
             if (cursor_stack <= CURSOR_COLUMN_8 &&
-                held [0] == 0xff && cursor_depth > 0)
+                stack [HELD] [0] == 0xff && cursor_depth > 0)
             {
                 cursor_depth--;
             }
@@ -230,10 +342,10 @@ void cursor_pick (void)
     /* Move the selected stack into the hand */
     for (i = 0; stack [stack_idx] [cursor_depth + i] != 0xff; i++)
     {
-        held [i] = stack [stack_idx] [cursor_depth + i];
+        stack [HELD] [i] = stack [stack_idx] [cursor_depth + i];
         stack [stack_idx] [cursor_depth + i] = 0xff;
     }
-    held [i] = 0xff;
+    stack [HELD] [i] = 0xff;
 
     came_from = cursor_stack;
 
@@ -261,20 +373,20 @@ void cursor_place (void)
             if (stack_card != 0xff)
             {
                 /* Special cards cannot be stacked */
-                if (((stack_card & 0x30) == 0x30) ||
-                    ((held [0]   & 0x30) == 0x30))
+                if (((stack_card       & 0x30) == 0x30) ||
+                    ((stack [HELD] [0] & 0x30) == 0x30))
                 {
                     return;
                 }
 
                 /* Colours must alternate */
-                if ((stack_card & 0x30) == (held [0] & 0x30))
+                if ((stack_card & 0x30) == (stack [HELD] [0] & 0x30))
                 {
                     return;
                 }
 
                 /* Value must decrease */
-                if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) + 1)
+                if ((stack_card & VALUE_BITS) != (stack [HELD] [0] & VALUE_BITS) + 1)
                 {
                     return;
                 }
@@ -283,7 +395,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_DRAGON_SLOT_3)
         {
             /* Only single cards may be placed in the dragon slots */
-            if ((stack_card != 0xff) || (held [1] != 0xff))
+            if ((stack_card != 0xff) || (stack [HELD] [1] != 0xff))
             {
                 return;
             }
@@ -296,7 +408,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_FOUNDATION_SNEP)
         {
             /* Only the snep card may be placed in the snep card slot */
-            if (held [0] != 0x33)
+            if (stack [HELD] [0] != 0x33)
             {
                 return;
             }
@@ -304,7 +416,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_FOUNDATION_3)
         {
             /* No special cards, and only one card at a time */
-            if ((held [0] & TYPE_BITS) == 0x30 || held [1] != 0xff)
+            if ((stack [HELD] [0] & TYPE_BITS) == 0x30 || stack [HELD] [1] != 0xff)
             {
                 return;
             }
@@ -312,7 +424,7 @@ void cursor_place (void)
             /* Only a '1' can be placed on an empty slot */
             if (stack [stack_idx] [0] == 0xff)
             {
-                if ((held [0] & VALUE_BITS) != 0)
+                if ((stack [HELD] [0] & VALUE_BITS) != 0)
                 {
                     return;
                 }
@@ -320,12 +432,12 @@ void cursor_place (void)
             else
             {
                 /* Cards in a foundation must all be the same colour */
-                if ((stack_card & TYPE_BITS) != (held [0] & TYPE_BITS))
+                if ((stack_card & TYPE_BITS) != (stack [HELD] [0] & TYPE_BITS))
                 {
                     return;
                 }
                 /* Cards in a foundation must be in increasing order */
-                if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) - 1)
+                if ((stack_card & VALUE_BITS) != (stack [HELD] [0] & VALUE_BITS) - 1)
                 {
                     return;
                 }
@@ -346,10 +458,10 @@ void cursor_place (void)
     }
 
     /* Move the cards from the hand */
-    for (i = 0; held [i] != 0xff; i++)
+    for (i = 0; stack [HELD] [i] != 0xff; i++)
     {
-        stack [stack_idx] [cursor_depth + i] = held [i];
-        held [i] = 0xff;
+        stack [stack_idx] [cursor_depth + i] = stack [HELD] [i];
+        stack [HELD] [i] = 0xff;
     }
     stack [stack_idx] [cursor_depth + i] = 0xff;
 
@@ -400,74 +512,13 @@ void deal (void)
 
 
 /*
- * Render one card.
+ * Render one card to the background.
  */
-void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool covered)
+void render_card_background (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool covered)
 {
-    uint16_t card_tiles [] = {
-         9, 11, 11, 12,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        17, 18, 18, 19
-    };
+    uint16_t card_tiles [24];
 
-    uint8_t value = card & VALUE_BITS;
-    uint8_t tile;
-
-    if ((card & 0x30) == 0x30)
-    {
-        if (value == 3)
-        {
-            /* Snep card */
-            card_tiles [0]  = CORNER_SNEP;
-            card_tiles [23] = CORNER_SNEP | TILE_FLIPPED_X | TILE_FLIPPED_Y;
-
-            for (uint8_t i = 0; i < 16; i++)
-            {
-                card_tiles [i + 4] = ARTWORK_SNEP + i;
-            }
-        }
-        else
-        {
-            /* Print card */
-            card_tiles [0]  = CORNER_PRINTS + (value * 3);
-            card_tiles [1]  = CORNER_PRINTS + (value * 3) + 2;
-            card_tiles [22] = CORNER_PRINTS + (value * 3) + 2 | TILE_FLIPPED_X | TILE_FLIPPED_Y;
-            card_tiles [23] = CORNER_PRINTS + (value * 3) | TILE_FLIPPED_X | TILE_FLIPPED_Y;
-
-            tile = ARTWORK_PRINTS + value * 4;
-            card_tiles [ 9] = tile;
-            card_tiles [10] = tile + 1;
-            card_tiles [13] = tile + 2;
-            card_tiles [14] = tile + 3;
-        }
-    }
-    else
-    {
-        /* Standard card */
-        uint8_t colour = card >> 4;
-
-        /* Card corners */
-        tile = CORNER_NUMBERS + value * 6 + colour * 2;
-        card_tiles [ 0] = tile;
-        card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
-
-        /* Chinese numbers */
-        tile = ARTWORK_CHINESE + value * 12 + colour * 4;
-        card_tiles [ 9] = tile;
-        card_tiles [10] = tile + 1;
-        card_tiles [13] = tile + 2;
-        card_tiles [14] = tile + 3;
-    }
-
-    if (stacked)
-    {
-        /* Show top of card below */
-        card_tiles [0] += 1;
-        card_tiles [3] = 13;
-    }
+    render_card_tiles (card_tiles, card, stacked);
 
     SMS_loadTileMapArea (4 * col, y, &card_tiles, 4, covered ? 1 : 6);
 }
@@ -475,7 +526,7 @@ void render_card (uint8_t col, uint8_t y, uint8_t card, bool stacked, bool cover
 /*
  * Renders the cards.
  */
-void render_tiles (void)
+void render_background (void)
 {
     uint16_t blank_line [] = {
         0, 0, 0, 0
@@ -497,7 +548,7 @@ void render_tiles (void)
         if (stack [i + 8] [0] != 0xff)
         {
             uint8_t depth = top_card (i + 8);
-            render_card (col, 1, stack [i + 8] [depth], false, false);
+            render_card_background (col, 1, stack [i + 8] [depth], false, false);
         }
         else
         {
@@ -526,7 +577,7 @@ void render_tiles (void)
                     break;
                 }
 
-                render_card (col, 9 + depth, card, depth, next != 0xff);
+                render_card_background (col, 9 + depth, card, depth, next != 0xff);
             }
         }
 
@@ -560,7 +611,7 @@ void main (void)
     SMS_displayOn ();
 
     deal ();
-    render_tiles ();
+    render_background ();
 
     /* Main loop */
     while (true)
@@ -573,7 +624,7 @@ void main (void)
         cursor_move (keys_pressed);
         if (keys_pressed & PORT_A_KEY_1)
         {
-            if (held [0] == 0xff)
+            if (stack [HELD] [0] == 0xff)
             {
                 cursor_pick ();
             }
@@ -583,7 +634,7 @@ void main (void)
             }
 
             /* Update cards in background layer */
-            render_tiles ();
+            render_background ();
         }
 
         keys_previous = keys;
