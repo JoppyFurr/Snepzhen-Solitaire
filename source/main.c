@@ -56,6 +56,7 @@ uint8_t stack [16] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
+bool stack_changed [16] = { false };
 
 uint8_t came_from = 0xff;
 
@@ -346,6 +347,7 @@ void cursor_pick (void)
         stack [stack_idx] [cursor_depth + i] = 0xff;
     }
     stack [HELD] [i] = 0xff;
+    stack_changed [stack_idx] = true;
 
     came_from = cursor_stack;
 
@@ -464,6 +466,7 @@ void cursor_place (void)
         stack [HELD] [i] = 0xff;
     }
     stack [stack_idx] [cursor_depth + i] = 0xff;
+    stack_changed [stack_idx] = true;
 
     came_from = 0xff;
 
@@ -505,6 +508,8 @@ void deal (void)
         stack [col] [5] = 0xff;
     }
 
+    memset (stack_changed, true, sizeof (stack_changed));
+
     cursor_stack = CURSOR_COLUMN_1;
     cursor_depth = CURSOR_DEPTH_MAX;
     cursor_move (PORT_A_KEY_DOWN);
@@ -545,6 +550,11 @@ void render_background (void)
     {
         uint8_t col = (i < 3) ? i : i + 1;
 
+        if (!stack_changed [8 + i])
+        {
+            continue;
+        }
+
         if (stack [i + 8] [0] != 0xff)
         {
             uint8_t depth = top_card (i + 8);
@@ -560,6 +570,12 @@ void render_background (void)
     for (int col = 0; col < 8; col++)
     {
         uint8_t depth;
+
+        if (!stack_changed [col])
+        {
+            continue;
+        }
+
         if (stack [col] [0] == 0xff)
         {
             SMS_loadTileMapArea (4 * col, 9, &empty_slot, 4, 6);
@@ -589,6 +605,8 @@ void render_background (void)
             depth++;
         }
     }
+
+    memset (stack_changed, false, sizeof (stack_changed));
 }
 
 
@@ -632,15 +650,15 @@ void main (void)
             {
                 cursor_place ();
             }
-
-            /* Update cards in background layer */
-            render_background ();
         }
 
         keys_previous = keys;
 
         /* Render */
         SMS_waitForVBlank ();
+
+        /* Update cards in background layer */
+        render_background ();
 
         if (sprite_update)
         {
