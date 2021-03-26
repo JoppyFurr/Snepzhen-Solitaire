@@ -107,6 +107,7 @@ void cursor_move (uint8_t direction)
     uint8_t cursor_x;
     uint8_t cursor_y;
     uint8_t stack_max_depth = 0;
+    uint8_t stack_idx;
 
     sprite_update = true;
 
@@ -122,7 +123,8 @@ void cursor_move (uint8_t direction)
             cursor_depth = CURSOR_DEPTH_MAX;
             break;
         case PORT_A_KEY_UP:
-            if (held [0] == 0xff && cursor_depth > 0)
+            if (cursor_stack <= CURSOR_COLUMN_8 &&
+                held [0] == 0xff && cursor_depth > 0)
             {
                 cursor_depth--;
             }
@@ -133,9 +135,10 @@ void cursor_move (uint8_t direction)
     }
 
     /* Next, calculate the maximum depth for the column */
-    if (stack [cursor_stack] [0] != 0xff)
+    stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
+    if (stack [stack_idx] [0] != 0xff)
     {
-        stack_max_depth = top_card (cursor_stack);
+        stack_max_depth = top_card (stack_idx);
     }
 
     /* Enforce the limit */
@@ -224,11 +227,12 @@ void cursor_pick (void)
 void cursor_place (void)
 {
     uint8_t i;
+    uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
 
     /* Check if cards are allowed to move here */
     if (cursor_stack != came_from)
     {
-        uint8_t stack_card = stack [cursor_stack] [cursor_depth];
+        uint8_t stack_card = stack [stack_idx] [cursor_depth];
 
         if (cursor_stack <= CURSOR_COLUMN_8)
         {
@@ -277,8 +281,33 @@ void cursor_place (void)
         }
         else if (cursor_stack <= CURSOR_FOUNDATION_3)
         {
-            /* TODO */
-            return;
+            /* No special cards, and only one card at a time */
+            if ((held [0] & TYPE_BITS) == 0x30 || held [1] != 0xff)
+            {
+                return;
+            }
+
+            /* Only a '1' can be placed on an empty slot */
+            if (stack [stack_idx] [0] == 0xff)
+            {
+                if ((held [0] & VALUE_BITS) != 0)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                /* Cards in a foundation must all be the same colour */
+                if ((stack_card & TYPE_BITS) != (held [0] & TYPE_BITS))
+                {
+                    return;
+                }
+                /* Cards in a foundation must be in increasing order */
+                if ((stack_card & VALUE_BITS) != (held [0] & VALUE_BITS) - 1)
+                {
+                    return;
+                }
+            }
         }
         else
         {
@@ -289,7 +318,7 @@ void cursor_place (void)
     }
 
     /* Place at the first empty slot, not the last full slot */
-    if (stack [cursor_stack] [0] != 0xff)
+    if (stack [stack_idx] [0] != 0xff)
     {
         cursor_depth++;
     }
@@ -297,10 +326,10 @@ void cursor_place (void)
     /* Move the cards from the hand */
     for (i = 0; held [i] != 0xff; i++)
     {
-        stack [cursor_stack] [cursor_depth + i] = held [i];
+        stack [stack_idx] [cursor_depth + i] = held [i];
         held [i] = 0xff;
     }
-    stack [cursor_stack] [cursor_depth + i] = 0xff;
+    stack [stack_idx] [cursor_depth + i] = 0xff;
 
     came_from = 0xff;
 
