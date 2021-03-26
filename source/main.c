@@ -171,14 +171,15 @@ void cursor_move (uint8_t direction)
 void cursor_pick (void)
 {
     uint8_t i;
+    uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
 
     /* Check if the selected cards can be picked up together */
-    if (stack [cursor_stack] [cursor_depth + 1] != 0xff)
+    if (stack [stack_idx] [cursor_depth + 1] != 0xff)
     {
         uint8_t previous_card = 0;
-        for (i = 0; stack [cursor_stack] [cursor_depth + i] != 0xff; i++)
+        for (i = 0; stack [stack_idx] [cursor_depth + i] != 0xff; i++)
         {
-            uint8_t card = stack [cursor_stack] [cursor_depth + i];
+            uint8_t card = stack [stack_idx] [cursor_depth + i];
 
             /* Special cards cannot be stacked */
             if ((card & TYPE_BITS) == 0x30)
@@ -188,16 +189,19 @@ void cursor_pick (void)
 
             if (i > 0)
             {
-                /* Colours must alternate */
-                if ((card & TYPE_BITS) == (previous_card & TYPE_BITS))
+                if (cursor_stack <= CURSOR_COLUMN_8)
                 {
-                    return;
-                }
+                    /* Colours must alternate */
+                    if ((card & TYPE_BITS) == (previous_card & TYPE_BITS))
+                    {
+                        return;
+                    }
 
-                /* Value must decrease */
-                if ((card & VALUE_BITS) != (previous_card & VALUE_BITS) - 1)
-                {
-                    return;
+                    /* Value must decrease */
+                    if ((card & VALUE_BITS) != (previous_card & VALUE_BITS) - 1)
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -206,10 +210,10 @@ void cursor_pick (void)
     }
 
     /* Move the selected stack into the hand */
-    for (i = 0; stack [cursor_stack] [cursor_depth + i] != 0xff; i++)
+    for (i = 0; stack [stack_idx] [cursor_depth + i] != 0xff; i++)
     {
-        held [i] = stack [cursor_stack] [cursor_depth + i];
-        stack [cursor_stack] [cursor_depth + i] = 0xff;
+        held [i] = stack [stack_idx] [cursor_depth + i];
+        stack [stack_idx] [cursor_depth + i] = 0xff;
     }
     held [i] = 0xff;
 
