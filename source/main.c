@@ -84,6 +84,20 @@ uint8_t cursor_stack = CURSOR_COLUMN_1;
 uint8_t cursor_depth = CURSOR_DEPTH_MAX;
 uint8_t cursor_id [4] = { 0 };
 
+uint8_t top_card (uint8_t s)
+{
+    uint8_t depth;
+
+    for (depth = 0; depth < CURSOR_DEPTH_MAX; depth++)
+    {
+        if (stack [s] [depth + 1] == 0xff)
+        {
+            break;
+        }
+    }
+
+    return depth;
+}
 
 /*
  * Render cursor as sprites.
@@ -121,13 +135,7 @@ void cursor_move (uint8_t direction)
     /* Next, calculate the maximum depth for the column */
     if (stack [cursor_stack] [0] != 0xff)
     {
-        for (stack_max_depth = 0; stack_max_depth < CURSOR_DEPTH_MAX; stack_max_depth++)
-        {
-            if (stack [cursor_stack] [stack_max_depth + 1] == 0xff)
-            {
-                break;
-            }
-        }
+        stack_max_depth = top_card (cursor_stack);
     }
 
     /* Enforce the limit */
@@ -430,24 +438,20 @@ void render_tiles (void)
         6, 7, 7, 8
     };
 
-    /* Dragons */
-    for (uint8_t i = 0; i < 3; i++)
+    /* Dragons & Foundations*/
+    for (uint8_t i = 0; i < 7; i++)
     {
+        uint8_t col = (i < 3) ? i : i + 1;
+
         if (stack [i + 8] [0] != 0xff)
         {
-            render_card (i, 1, stack [i + 8] [0], false, false);
+            uint8_t depth = top_card (i + 8);
+            render_card (col, 1, stack [i + 8] [depth], false, false);
         }
         else
         {
-            SMS_loadTileMapArea (4 * i, 1, &empty_slot, 4, 6);
+            SMS_loadTileMapArea (4 * col, 1, &empty_slot, 4, 6);
         }
-    }
-
-    /* Foundations */
-    for (uint8_t i = 4; i < 8; i++)
-    {
-        /* TODO */
-        SMS_loadTileMapArea (4 * i, 1, &empty_slot, 4, 6);
     }
 
     /* Tableau columns */
