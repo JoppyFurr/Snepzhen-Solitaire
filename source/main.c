@@ -47,7 +47,7 @@ uint8_t deck [] = {
     0x32, 0x32, 0x32, 0x33
 };
 
-uint8_t column [8] [16] = {
+uint8_t stack [15] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
@@ -117,11 +117,11 @@ void cursor_move (uint8_t direction)
     }
 
     /* Next, calculate the maximum depth for the column */
-    if (cursor_stack <= CURSOR_COLUMN_8 && column [cursor_stack] [0] != 0xff)
+    if (cursor_stack <= CURSOR_COLUMN_8 && stack [cursor_stack] [0] != 0xff)
     {
         for (stack_max_depth == 0; stack_max_depth < CURSOR_DEPTH_MAX; stack_max_depth++)
         {
-            if (column [cursor_stack] [stack_max_depth + 1] == 0xff)
+            if (stack [cursor_stack] [stack_max_depth + 1] == 0xff)
             {
                 break;
             }
@@ -160,12 +160,12 @@ void cursor_pick (void)
     uint8_t i;
 
     /* Check if the selected cards can be picked up together */
-    if (column [cursor_stack] [cursor_depth + 1] != 0xff)
+    if (stack [cursor_stack] [cursor_depth + 1] != 0xff)
     {
         uint8_t previous_card = 0;
-        for (i = 0; column [cursor_stack] [cursor_depth + i] != 0xff; i++)
+        for (i = 0; stack [cursor_stack] [cursor_depth + i] != 0xff; i++)
         {
-            uint8_t card = column [cursor_stack] [cursor_depth + i];
+            uint8_t card = stack [cursor_stack] [cursor_depth + i];
 
             /* Special cards cannot be stacked */
             if ((card & TYPE_BITS) == 0x30)
@@ -193,10 +193,10 @@ void cursor_pick (void)
     }
 
     /* Move the selected stack into the hand */
-    for (i = 0; column [cursor_stack] [cursor_depth + i] != 0xff; i++)
+    for (i = 0; stack [cursor_stack] [cursor_depth + i] != 0xff; i++)
     {
-        held [i] = column [cursor_stack] [cursor_depth + i];
-        column [cursor_stack] [cursor_depth + i] = 0xff;
+        held [i] = stack [cursor_stack] [cursor_depth + i];
+        stack [cursor_stack] [cursor_depth + i] = 0xff;
     }
     held [i] = 0xff;
 
@@ -218,7 +218,7 @@ void cursor_place (void)
     /* Check if cards are allowed to move here */
     if (cursor_stack != came_from)
     {
-        uint8_t stack_card = column [cursor_stack] [cursor_depth];
+        uint8_t stack_card = stack [cursor_stack] [cursor_depth];
 
         /* Special cards cannot be stacked */
         if (((stack_card & 0x30) == 0x30) ||
@@ -241,7 +241,7 @@ void cursor_place (void)
     }
 
     /* Place at the first empty slot, not the last full slot */
-    if (column [cursor_stack] [0] != 0xff)
+    if (stack [cursor_stack] [0] != 0xff)
     {
         cursor_depth++;
     }
@@ -249,10 +249,10 @@ void cursor_place (void)
     /* Move the cards from the hand */
     for (i = 0; held [i] != 0xff; i++)
     {
-        column [cursor_stack] [cursor_depth + i] = held [i];
+        stack [cursor_stack] [cursor_depth + i] = held [i];
         held [i] = 0xff;
     }
-    column [cursor_stack] [cursor_depth + i] = 0xff;
+    stack [cursor_stack] [cursor_depth + i] = 0xff;
 
     came_from = 0xff;
 
@@ -288,10 +288,10 @@ void deal (void)
     {
         for (uint8_t depth = 0; depth < 5; depth++)
         {
-            column [col] [depth] = deck [i++];
+            stack [col] [depth] = deck [i++];
         }
 
-        column [col] [5] = 0xff;
+        stack [col] [5] = 0xff;
     }
 
     cursor_stack = CURSOR_COLUMN_1;
@@ -405,7 +405,7 @@ void render_tiles (void)
     for (int col = 0; col < 8; col++)
     {
         uint8_t depth;
-        if (column [col] [0] == 0xff)
+        if (stack [col] [0] == 0xff)
         {
             SMS_loadTileMapArea (4 * col, 9, &empty_slot, 4, 6);
             depth = 1;
@@ -414,8 +414,8 @@ void render_tiles (void)
         {
             for (depth = 0; depth < 13; depth++)
             {
-                uint8_t card = column [col] [depth];
-                uint8_t next = column [col] [depth + 1];
+                uint8_t card = stack [col] [depth];
+                uint8_t next = stack [col] [depth + 1];
 
                 if (card == 0xff)
                 {
