@@ -82,8 +82,11 @@ enum cursor_stack_e
 #define CURSOR_DEPTH_MAX 15
 uint8_t cursor_stack = CURSOR_COLUMN_1;
 uint8_t cursor_depth = CURSOR_DEPTH_MAX;
-uint8_t cursor_id [4] = { 0 };
 
+
+/*
+ * Calculate the index of the top card in the selected stack.
+ */
 uint8_t top_card (uint8_t s)
 {
     uint8_t depth;
@@ -99,17 +102,45 @@ uint8_t top_card (uint8_t s)
     return depth;
 }
 
+
 /*
- * Render cursor as sprites.
+ * Render the cursor and its held cards, as sprites.
  */
-void cursor_move (uint8_t direction)
+void cursor_render (void)
 {
     uint8_t cursor_x;
     uint8_t cursor_y;
-    uint8_t stack_max_depth = 0;
-    uint8_t stack_idx;
+
+    /* Clear any previous sprites */
+    SMS_initSprites ();
+
+    /* Cursor coordinates */
+    cursor_x = (cursor_stack & 0x07) * 32 + 16;
+    if (cursor_stack > CURSOR_COLUMN_8)
+    {
+        cursor_y = 12;
+    }
+    else
+    {
+        cursor_y = cursor_depth * 8 + 76;
+    }
+
+    SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_WHITE    ));
+    SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_WHITE + 1));
+    SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_WHITE + 2));
+    SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_WHITE + 3));
 
     sprite_update = true;
+}
+
+
+/*
+ * Calculate the new cursor position after d-pad input.
+ */
+void cursor_move (uint8_t direction)
+{
+    uint8_t stack_max_depth = 0;
+    uint8_t stack_idx;
 
     /* First, perform the motion */
     switch (direction)
@@ -147,26 +178,13 @@ void cursor_move (uint8_t direction)
         cursor_depth = stack_max_depth;
     }
 
-    /* Cursor coordinates */
-    cursor_x = (cursor_stack & 0x07) * 32 + 16;
-    if (cursor_stack > CURSOR_COLUMN_8)
-    {
-        cursor_y = 12;
-    }
-    else
-    {
-        cursor_y = cursor_depth * 8 + 76;
-    }
-
-    SMS_updateSpritePosition (cursor_id [0], cursor_x,     cursor_y);
-    SMS_updateSpritePosition (cursor_id [1], cursor_x + 8, cursor_y);
-    SMS_updateSpritePosition (cursor_id [2], cursor_x,     cursor_y + 8);
-    SMS_updateSpritePosition (cursor_id [3], cursor_x + 8, cursor_y + 8);
+    cursor_render ();
 }
 
 
 /*
  * Pick up the selected card.
+ * TODO: Only allow picking from a dragon slot when it contains exactly one card.
  */
 void cursor_pick (void)
 {
@@ -537,11 +555,6 @@ void main (void)
 
     SMS_useFirstHalfTilesforSprites (true);
     SMS_initSprites ();
-    cursor_id [0] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE    ));
-    cursor_id [1] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 1));
-    cursor_id [2] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 2));
-    cursor_id [3] = SMS_addSprite (0, 0, (uint8_t) (CURSOR_WHITE + 3));
-    cursor_move (PORT_A_KEY_DOWN);
     SMS_copySpritestoSAT ();
 
     SMS_displayOn ();
