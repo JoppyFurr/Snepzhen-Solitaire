@@ -11,6 +11,7 @@
 #define ARTWORK_PRINTS  198
 #define ARTWORK_SNEP    210
 #define OUTLINE_CARD    226
+#define BUTTON_TILES    234
 
 /* Patterns */
 const uint32_t patterns [] = {
@@ -784,5 +785,85 @@ const uint32_t patterns [] = {
     /* Outline bottom-right */
     0x00000004,     0x00000004,     0x00000004,     0x00000004,
     0x00000004,     0x00000008,     0x00000010,     0x000000e0,
+
+    /*
+     * 234 - Buttons.
+     */
+
+    /* Claw button top-left (inactive) */
+    0x00000000,     0x00000003,     0x0000000c,     0x00000110,
+    0x00000120,     0x00000120,     0x00001140,     0x00001940,
+    /* Claw button top-right (inactive) */
+    0x00000000,     0x000000c0,     0x00000030,     0x00000008,
+    0x00008004,     0x00008004,     0x00008802,     0x00009802,
+    /* Claw button bottom-left (inactive) */
+    0x00001d40,     0x00000f40,     0x00000720,     0x00000320,
+    0x00000110,     0x0000000c,     0x00000003,     0x00000000,
+    /* Claw button bottom-right (inactive) */
+    0x0000b802,     0x0000f002,     0x0000e004,     0x0000c004,
+    0x00008008,     0x00000030,     0x000000c0,     0x00000000,
+    /* Claw button top-left (active) */
+    0x00000000,     0x00000300,     0x00000c03,     0x0000110e,
+    0x0000211e,     0x0000211e,     0x0000512e,     0x00005926,
+    /* Claw button top-right (active) */
+    0x00000000,     0x0000c000,     0x000030c0,     0x000008f0,
+    0x00008478,     0x00008478,     0x00008a74,     0x00009a64,
+    /* Claw button bottom-left (active) */
+    0x00005d22,     0x00004f30,     0x00002718,     0x0000231c,
+    0x0000110e,     0x00000c03,     0x00000300,     0x00000000,
+    /* Claw button bottom-right (active) */
+    0x0000ba44,     0x0000f20c,     0x0000e418,     0x0000c438,
+    0x00008870,     0x000030c0,     0x0000c000,     0x00000000,
+
+    /* Paw button top-left (inactive) */
+    0x00000000,     0x00000003,     0x0000000c,     0x00000010,
+    0x00060020,     0x00060020,     0x00000040,     0x00180040,
+    /* Paw button top-right (inactive) */
+    0x00000000,     0x000000c0,     0x00000030,     0x00000008,
+    0x00600004,     0x00600004,     0x00000002,     0x00180002,
+    /* Paw button bottom-left (inactive) */
+    0x00190040,     0x00030040,     0x00070020,     0x00030020,
+    0x00000010,     0x0000000c,     0x00000003,     0x00000000,
+    /* Paw button bottom-right (inactive) */
+    0x00980002,     0x00c00002,     0x00e00004,     0x00c00004,
+    0x00000008,     0x00000030,     0x000000c0,     0x00000000,
+    /* Paw button top-left (active) */
+    0x00000000,     0x00000300,     0x00000c03,     0x0000100f,
+    0x00062019,     0x00062019,     0x0000403f,     0x00184027,
+    /* Paw button top-right (active) */
+    0x00000000,     0x0000c000,     0x000030c0,     0x000008f0,
+    0x00600498,     0x00600498,     0x000002fc,     0x001802e4,
+    /* Paw button bottom-left (active) */
+    0x00194026,     0x0003403c,     0x00072018,     0x0003201c,
+    0x0000100f,     0x00000c03,     0x00000300,     0x00000000,
+    /* Paw button bottom-right (active) */
+    0x00980264,     0x00c0023c,     0x00e00418,     0x00c00438,
+    0x000008f0,     0x000030c0,     0x0000c000,     0x00000000,
+
+    /* Hoof button top-left (inactive) */
+    0x00000000,     0x00000003,     0x0000000c,     0x00020012,
+    0x00060026,     0x00060026,     0x000c004c,     0x000c004c,
+    /* Hoof button top-right (inactive) */
+    0x00000000,     0x000000c0,     0x00000030,     0x00400048,
+    0x00600064,     0x00600064,     0x00300032,     0x00300032,
+    /* Hoof button bottom-left (inactive) */
+    0x000e004e,     0x000e004e,     0x00040024,     0x00000020,
+    0x00020012,     0x0000000c,     0x00000003,     0x00000000,
+    /* Hoof button bottom-right (inactive) */
+    0x00700072,     0x00700072,     0x00200024,     0x00000004,
+    0x00400048,     0x00000030,     0x000000c0,     0x00000000,
+    /* Hoof button top-left (active) */
+    0x00000000,     0x00000300,     0x00000c03,     0x0002100f,
+    0x0006201f,     0x0006201f,     0x000c403f,     0x000c403f,
+    /* Hoof button top-right (active) */
+    0x00000000,     0x0000c000,     0x000030c0,     0x004008f0,
+    0x006004f8,     0x006004f8,     0x003002fc,     0x003002fc,
+    /* Hoof button bottom-left (active) */
+    0x000e403f,     0x000e403f,     0x0004201f,     0x0000201f,
+    0x0002100f,     0x00000c03,     0x00000300,     0x00000000,
+    /* Hoof button bottom-right (active) */
+    0x007002fc,     0x007002fc,     0x002004f8,     0x000004f8,
+    0x004008f0,     0x000030c0,     0x0000c000,     0x00000000,
+
 };
 

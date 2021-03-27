@@ -541,6 +541,7 @@ void render_background (void)
         OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
         OUTLINE_CARD + 5, OUTLINE_CARD + 6, OUTLINE_CARD + 6, OUTLINE_CARD + 7
     };
+    uint16_t button_tiles [4];
 
     /* Dragons & Foundations*/
     for (uint8_t i = 0; i < 7; i++)
@@ -601,6 +602,17 @@ void render_background (void)
             SMS_loadTileMapArea (4 * col, 9 + depth, &blank_line, 4, 1);
             depth++;
         }
+    }
+
+    /* Buttons */
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        button_tiles [0] = BUTTON_TILES + (i * 8);
+        button_tiles [1] = BUTTON_TILES + (i * 8) + 1;
+        button_tiles [2] = BUTTON_TILES + (i * 8) + 2;
+        button_tiles [3] = BUTTON_TILES + (i * 8) + 3;
+
+        SMS_loadTileMapArea (13, (i * 2) + 1, &button_tiles, 2, 2);
     }
 
     memset (stack_changed, false, sizeof (stack_changed));
