@@ -58,8 +58,9 @@ uint8_t stack [16] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
 bool stack_changed [16] = { false };
-
 uint8_t came_from = 0xff;
+
+bool button_active [3] = { false };
 
 /* Cursor */
 enum cursor_stack_e
@@ -104,6 +105,49 @@ uint8_t top_card (uint8_t s)
     }
 
     return depth;
+}
+
+
+/*
+ * Check the any dragon buttons are active.
+ */
+void check_dragons (void)
+{
+    bool empty_slot = false;
+    bool in_slot [3] = { false };
+    uint8_t count [3] = { 0 };
+
+    /* Check for empty slots */
+    if (stack [CURSOR_DRAGON_SLOT_1] [0] == 0xff ||
+        stack [CURSOR_DRAGON_SLOT_2] [0] == 0xff ||
+        stack [CURSOR_DRAGON_SLOT_3] [0] == 0xff)
+    {
+        empty_slot = true;
+    }
+
+    for (uint8_t stack_idx = 0; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
+    {
+        uint8_t card = stack [stack_idx] [top_card (stack_idx)];
+
+        for (uint8_t kind = 0; kind < 3; kind++)
+        {
+            if (card == (0x30 + kind))
+            {
+                count [kind]++;
+
+                if (stack_idx >= CURSOR_DRAGON_SLOT_1)
+                {
+                    in_slot [kind] = true;
+                }
+            }
+        }
+    }
+
+    /* Light up the button if all of a kind are visible and have somewhere to go */
+    for (uint8_t kind = 0; kind < 3; kind++)
+    {
+        button_active [kind] = (count [kind] == 4) && (empty_slot || in_slot [kind]);
+    }
 }
 
 
@@ -605,13 +649,22 @@ void render_background (void)
         }
     }
 
+    for (uint8_t i = 0; i < sizeof (stack_changed); i++)
+    {
+        if (stack_changed [i])
+        {
+            check_dragons ();
+            break;
+        }
+    }
+
     /* Buttons */
     for (uint8_t i = 0; i < 3; i++)
     {
-        button_tiles [0] = BUTTON_TILES + (i * 8);
-        button_tiles [1] = BUTTON_TILES + (i * 8) + 1;
-        button_tiles [2] = BUTTON_TILES + (i * 8) + 2;
-        button_tiles [3] = BUTTON_TILES + (i * 8) + 3;
+        button_tiles [0] = BUTTON_TILES + (i * 8) + (button_active [i] * 4);
+        button_tiles [1] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 1;
+        button_tiles [2] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 2;
+        button_tiles [3] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 3;
 
         SMS_loadTileMapArea (13, (i * 2) + 1, &button_tiles, 2, 2);
     }
