@@ -948,9 +948,22 @@ void main (void)
             else
             {
                 /* Cancel the currently held cards */
+                uint8_t from_x;
+                uint8_t from_y;
+                uint8_t to_x;
+                uint8_t to_y;
+
+                /* Animation start-point */
+                cursor_sd_to_xy (cursor_stack, cursor_depth, &from_x, &from_y);
+
                 cursor_stack = came_from;
                 cursor_depth = CURSOR_DEPTH_MAX;
                 cursor_move (PORT_A_KEY_DOWN);
+
+                /* Animation */
+                cursor_sd_to_xy (cursor_stack, cursor_depth + 1, &to_x, &to_y);
+                card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
+
                 cursor_place ();
             }
         }
