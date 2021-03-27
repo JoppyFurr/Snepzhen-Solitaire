@@ -1,685 +1,783 @@
 
-#define CORNER_NUMBERS  128
-#define CORNER_PRINTS   182
-#define CORNER_SNEP     191
-#define ARTWORK_CHINESE  20
-#define ARTWORK_PRINTS  193
-#define ARTWORK_SNEP    205
-#define CURSOR_BLACK    221
-#define CURSOR_SILVER   225
-#define CURSOR_WHITE    229
+#define EMPTY_TILE        0
+#define CURSOR_BLACK      1
+#define CURSOR_SILVER     5
+#define CURSOR_WHITE      9
+#define BLANK_CARD       13
+#define CORNER_NUMBERS   24
+#define CORNER_PRINTS   105
+#define CORNER_SNEP     114
+#define ARTWORK_NUMBERS 116
+#define ARTWORK_PRINTS  224
+#define ARTWORK_SNEP    236
+#define OUTLINE_CARD    252
 
 /* Patterns */
 const uint32_t patterns [] = {
 
-    /* 00 - Empty tile */
+    /* Empty tile */
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
 
     /*
-     * Empty card slot.
+     * Cursors.
      */
 
-    /* 01 - Outline top-left */
-    0x00000007,     0x00000008,     0x00000010,     0x00000020,
-    0x00000020,     0x00000020,     0x00000020,     0x00000020,
-    /* 02 - Outline top-edge */
-    0x000000ff,     0x00000000,     0x00000000,     0x00000000,
+    /* Cursor (black) top-left */
+    0x0000c0c0,     0x0000e0a0,     0x0000f090,     0x0000f888,
+    0x0000fc84,     0x0000fe82,     0x0000ff81,     0x0000ff80,
+    /* Cursor (black) top-right */
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
-    /* 03 - Outline top-right */
-    0x000000e0,     0x00000010,     0x00000008,     0x00000004,
-    0x00000004,     0x00000004,     0x00000004,     0x00000004,
-    /* 04 - Outline left-edge */
-    0x00000020,     0x00000020,     0x00000020,     0x00000020,
-    0x00000020,     0x00000020,     0x00000020,     0x00000020,
-    /* 05 - Outline right-edge */
-    0x00000004,     0x00000004,     0x00000004,     0x00000004,
-    0x00000004,     0x00000004,     0x00000004,     0x00000004,
-    /* 06 - Outline bottom-left */
-    0x00000020,     0x00000020,     0x00000020,     0x00000020,
-    0x00000020,     0x00000010,     0x00000008,     0x00000007,
-    /* 07 - Outline bottom-edge */
+    0x00000000,     0x00000000,     0x00000000,     0x00008080,
+    /* Cursor (black) bottom-left */
+    0x0000ff80,     0x0000ff83,     0x0000fe92,     0x0000efa9,
+    0x0000cfc9,     0x00008784,     0x00000704,     0x00000303,
+    /* Cursor (black) bottom-right */
+    0x0000c040,     0x0000e0e0,     0x00000000,     0x00000000,
+    0x00000000,     0x00008080,     0x00008080,     0x00008080,
+
+    /* Cursor (silver) top-left */
+    0x00008000,     0x0080c080,     0x00c0e080,     0x00e0f080,
+    0x00b0f8c0,     0x00b8fcc0,     0x009cfee0,     0x009effe0,
+    /* Cursor (silver) top-right */
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
-    0x00000000,     0x00000000,     0x00000000,     0x000000ff,
-    /* 08 - Outline bottom-right */
-    0x00000004,     0x00000004,     0x00000004,     0x00000004,
-    0x00000004,     0x00000008,     0x00000010,     0x000000e0,
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    /* Cursor (silver) bottom-left */
+    0x008ffff0,     0x0090ffe0,     0x00a4fec8,     0x00caef8c,
+    0x008acf8c,     0x00058706,     0x00070704,     0x00000300,
+    /* Cursor (silver) bottom-right */
+    0x00008000,     0x0000c000,     0x00000000,     0x00000000,
+    0x00000000,     0x00008000,     0x00008000,     0x00008000,
+
+    /* Cursor (white) top-left */
+    0x0000c000,     0x0000e040,     0x0000f060,     0x0000f870,
+    0x0000fc78,     0x0000fe7c,     0x0000ff7e,     0x0000ff7f,
+    /* Cursor (white) top-right */
+    0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    0x00000000,     0x00000000,     0x00000000,     0x00008000,
+    /* Cursor (white) bottom-left */
+    0x0000ff7f,     0x0000ff7c,     0x0000fe6c,     0x0000ef46,
+    0x0000cf06,     0x00008703,     0x00000703,     0x00000300,
+    /* Cursor (white) bottom-right */
+    0x0000c080,     0x0000e000,     0x00000000,     0x00000000,
+    0x00000000,     0x00008000,     0x00008000,     0x00008000,
 
     /*
-     * Blank card.
+     * 13 - Blank card.
      */
 
-    /* 09 - Card top-left */
+    /* Card top-left */
     0x00000700,     0x00000f07,     0x00001f0f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 10 - Card top-left stacked */
+    /* Card top-left stacked */
     0x00003f18,     0x00003f17,     0x00003f0f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 11 - Card top-edge */
+    /* Card top-edge */
     0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 12 - Card top-right */
+    /* Card top-right */
     0x0000e000,     0x0000f0e0,     0x0000f8f0,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    /* 13 - Card top-right stacked */
+    /* Card top-right stacked */
     0x0000fc18,     0x0000fce8,     0x0000fcf0,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    /* 14 - Card left-edge */
+    /* Card left-edge */
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 15 - Card blank-middle */
+    /* Card blank-middle */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 16 - Card right-edge */
+    /* Card right-edge */
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    /* 17 - Card bottom-left */
+    /* Card bottom-left */
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
     0x00003f1f,     0x00001f0f,     0x00000f07,     0x00000700,
-    /* 18 - Card bottom-edge */
+    /* Card bottom-edge */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff00,
-    /* 19 - Card bottom-right */
+    /* Card bottom-right */
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
     0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /*
-     * Chinese characters are Gnu Unifont at 16 × 16 pixels.
+     * 24 Card-corner numbers.
      */
 
-    /* 20 - One (black) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff00,
-    /* 21 - One (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff01,
-    /* 22 - One (black) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 23 - One (black) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 24 - One (red) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00ff0000,
-    /* 25 - One (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00fe0101,
-    /* 26 - One (red) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 27 - One (red) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 28 - One (green) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00ff00ff,
-    /* 29 - One (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00fe01ff,
-    /* 30 - One (green) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 31 - One (green) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-
-    /* 32 - Two (black) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffc0,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 33 - Two (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff07,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 34 - Two (black) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 35 - Two (black) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ff01,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 36 - Two (red) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0c0,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 37 - Two (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f80707,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 38 - Two (red) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00ff0000,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 39 - Two (red) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00fe0101,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 40 - Two (green) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0ff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 41 - Two (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f807ff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 42 - Two (green) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00ff00ff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 43 - Two (green) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00fe01ff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-
-    /* 44 - Three (black) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ff80,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffc0,
-    /* 45 - Three (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ff03,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff07,
-    /* 46 - Three (black) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ff00,     0x0000ffff,     0x0000ffff,
-    /* 47 - Three (black) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ff01,     0x0000ffff,     0x0000ffff,
-    /* 48 - Three (red) top-left */
-    0x0000ffff,     0x0000ffff,     0x007f8080,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0c0,
-    /* 49 - Three (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x00fc0303,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f80707,
-    /* 50 - Three (red) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00ff0000,     0x0000ffff,     0x0000ffff,
-    /* 51 - Three (red) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00fe0101,     0x0000ffff,     0x0000ffff,
-    /* 52 - Three (green) top-left */
-    0x0000ffff,     0x0000ffff,     0x007f80ff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0ff,
-    /* 53 - Three (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x00fc03ff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f807ff,
-    /* 54 - Three (green) bottom-left */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00ff00ff,     0x0000ffff,     0x0000ffff,
-    /* 55 - Three (green) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00fe01ff,     0x0000ffff,     0x0000ffff,
-
-    /* 56 - Four (black) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000ff80,     0x0000ffbb,
-    0x0000ffbb,     0x0000ffbb,     0x0000ffbb,     0x0000ffbb,
-    /* 57 - Four (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ff03,     0x0000ffbb,
-    0x0000ffbb,     0x0000ffbb,     0x0000ffbb,     0x0000ffbb,
-    /* 58 - Four (black) bottom-left */
-    0x0000ffb7,     0x0000ffb7,     0x0000ffaf,     0x0000ff9f,
-    0x0000ffbf,     0x0000ff80,     0x0000ffbf,     0x0000ffff,
-    /* 59 - Four (black) bottom-right */
-    0x0000ffbb,     0x0000ffc3,     0x0000fffb,     0x0000fffb,
-    0x0000fffb,     0x0000ff03,     0x0000fffb,     0x0000ffff,
-    /* 60 - Four (red) top-left */
-    0x0000ffff,     0x0000ffff,     0x007f8080,     0x0044bbbb,
-    0x0044bbbb,     0x0044bbbb,     0x0044bbbb,     0x0044bbbb,
-    /* 61 - Four (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x00fc0303,     0x0044bbbb,
-    0x0044bbbb,     0x0044bbbb,     0x0044bbbb,     0x0044bbbb,
-    /* 62 - Four (red) bottom-left */
-    0x0048b7b7,     0x0048b7b7,     0x0050afaf,     0x00609f9f,
-    0x0040bfbf,     0x007f8080,     0x0040bfbf,     0x0000ffff,
-    /* 63 - Four (red) bottom-right */
-    0x0044bbbb,     0x003cc3c3,     0x0004fbfb,     0x0004fbfb,
-    0x0004fbfb,     0x00fc0303,     0x0004fbfb,     0x0000ffff,
-    /* 64 - Four (green) top-left */
-    0x0000ffff,     0x0000ffff,     0x007f80ff,     0x0044bbff,
-    0x0044bbff,     0x0044bbff,     0x0044bbff,     0x0044bbff,
-    /* 65 - Four (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x00fc03ff,     0x0044bbff,
-    0x0044bbff,     0x0044bbff,     0x0044bbff,     0x0044bbff,
-    /* 66 - Four (green) bottom-left */
-    0x0048b7ff,     0x0048b7ff,     0x0050afff,     0x00609fff,
-    0x0040bfff,     0x007f80ff,     0x0040bfff,     0x0000ffff,
-    /* 67 - Four (green) bottom-right */
-    0x0044bbff,     0x003cc3ff,     0x0004fbff,     0x0004fbff,
-    0x0004fbff,     0x00fc03ff,     0x0004fbff,     0x0000ffff,
-
-    /* 68 - Five (black) top-left */
-    0x0000ffff,     0x0000ff80,     0x0000fffd,     0x0000fffd,
-    0x0000fffd,     0x0000fffd,     0x0000ffc0,     0x0000fffb,
-    /* 69 - Five (black) top-right */
-    0x0000ffff,     0x0000ff03,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x0000ff0f,     0x0000ffef,
-    /* 70 - Five (black) bottom-left */
-    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fff7,
-    0x0000fff7,     0x0000fff7,     0x0000ff00,     0x0000ffff,
-    /* 71 - Five (black) bottom-right */
-    0x0000ffef,     0x0000ffef,     0x0000ffef,     0x0000ffef,
-    0x0000ffef,     0x0000ffef,     0x0000ff01,     0x0000ffff,
-    /* 72 - Five (red) top-left */
-    0x0000ffff,     0x007f8080,     0x0002fdfd,     0x0002fdfd,
-    0x0002fdfd,     0x0002fdfd,     0x003fc0c0,     0x0004fbfb,
-    /* 73 - Five (red) top-right */
-    0x0000ffff,     0x00fc0303,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x00f00f0f,     0x0010efef,
-    /* 74 - Five (red) bottom-left */
-    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0008f7f7,
-    0x0008f7f7,     0x0008f7f7,     0x00ff0000,     0x0000ffff,
-    /* 75 - Five (red) bottom-right */
-    0x0010efef,     0x0010efef,     0x0010efef,     0x0010efef,
-    0x0010efef,     0x0010efef,     0x00fe0101,     0x0000ffff,
-    /* 76 - Five (green) top-left */
-    0x0000ffff,     0x007f80ff,     0x0002fdff,     0x0002fdff,
-    0x0002fdff,     0x0002fdff,     0x003fc0ff,     0x0004fbff,
-    /* 77 - Five (green) top-right */
-    0x0000ffff,     0x00fc03ff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffff,     0x00f00fff,     0x0010efff,
-    /* 78 - Five (green) bottom-left */
-    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0008f7ff,
-    0x0008f7ff,     0x0008f7ff,     0x00ff00ff,     0x0000ffff,
-    /* 79 - Five (green) bottom-right */
-    0x0010efff,     0x0010efff,     0x0010efff,     0x0010efff,
-    0x0010efff,     0x0010efff,     0x00fe01ff,     0x0000ffff,
-
-    /* 80 - Six (black) top-left */
-    0x0000fffd,     0x0000fffe,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ff00,     0x0000ffff,     0x0000ffff,
-    /* 81 - Six (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ff7f,     0x0000ff7f,
-    0x0000ffff,     0x0000ff01,     0x0000ffff,     0x0000ffff,
-    /* 82 - Six (black) bottom-left */
-    0x0000fffb,     0x0000fffb,     0x0000fff7,     0x0000fff7,
-    0x0000ffef,     0x0000ffdf,     0x0000ffbf,     0x0000ffff,
-    /* 83 - Six (black) bottom-right */
-    0x0000ffbf,     0x0000ffdf,     0x0000ffef,     0x0000fff7,
-    0x0000fff7,     0x0000fffb,     0x0000fffb,     0x0000ffff,
-    /* 84 - Six (red) top-left */
-    0x0002fdfd,     0x0001fefe,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00ff0000,     0x0000ffff,     0x0000ffff,
-    /* 85 - Six (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x00807f7f,     0x00807f7f,
-    0x0000ffff,     0x00fe0101,     0x0000ffff,     0x0000ffff,
-    /* 86 - Six (red) bottom-left */
-    0x0004fbfb,     0x0004fbfb,     0x0008f7f7,     0x0008f7f7,
-    0x0010efef,     0x0020dfdf,     0x0040bfbf,     0x0000ffff,
-    /* 87 - Six (red) bottom-right */
-    0x0040bfbf,     0x0020dfdf,     0x0010efef,     0x0008f7f7,
-    0x0008f7f7,     0x0004fbfb,     0x0004fbfb,     0x0000ffff,
-    /* 88 - Six (green) top-left */
-    0x0002fdff,     0x0001feff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x00ff00ff,     0x0000ffff,     0x0000ffff,
-    /* 89 - Six (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x00807fff,     0x00807fff,
-    0x0000ffff,     0x00fe01ff,     0x0000ffff,     0x0000ffff,
-    /* 90 - Six (green) bottom-left */
-    0x0004fbff,     0x0004fbff,     0x0008f7ff,     0x0008f7ff,
-    0x0010efff,     0x0020dfff,     0x0040bfff,     0x0000ffff,
-    /* 91 - Six (green) bottom-right */
-    0x0040bfff,     0x0020dfff,     0x0010efff,     0x0008f7ff,
-    0x0008f7ff,     0x0004fbff,     0x0004fbff,     0x0000ffff,
-
-    /* 92 - Seven (black) top-left */
-    0x0000fffd,     0x0000fffd,     0x0000fffd,     0x0000fffd,
-    0x0000fffd,     0x0000fffd,     0x0000fff8,     0x0000ff05,
-    /* 93 - Seven (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x0000ffc3,     0x0000ff3f,     0x0000ffff,
-    /* 94 - Seven (black) bottom-left */
-    0x0000fffd,     0x0000fffd,     0x0000fffd,     0x0000fffd,
-    0x0000fffd,     0x0000fffd,     0x0000fffe,     0x0000ffff,
-    /* 95 - Seven (black) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000fffb,
-    0x0000fffb,     0x0000fffb,     0x0000ff03,     0x0000ffff,
-    /* 96 - Seven (red) top-left */
-    0x0002fdfd,     0x0002fdfd,     0x0002fdfd,     0x0002fdfd,
-    0x0002fdfd,     0x0002fdfd,     0x0007f8f8,     0x00fa0505,
-    /* 97 - Seven (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x003cc3c3,     0x00c03f3f,     0x0000ffff,
-    /* 98 - Seven (red) bottom-left */
-    0x0002fdfd,     0x0002fdfd,     0x0002fdfd,     0x0002fdfd,
-    0x0002fdfd,     0x0002fdfd,     0x0001fefe,     0x0000ffff,
-    /* 99 - Seven (red) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0004fbfb,
-    0x0004fbfb,     0x0004fbfb,     0x00fc0303,     0x0000ffff,
-    /* 100 - Seven (green) top-left */
-    0x0002fdff,     0x0002fdff,     0x0002fdff,     0x0002fdff,
-    0x0002fdff,     0x0002fdff,     0x0007f8ff,     0x00fa05ff,
-    /* 101 - Seven (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ffff,     0x003cc3ff,     0x00c03fff,     0x0000ffff,
-    /* 102 - Seven (green) bottom-left */
-    0x0002fdff,     0x0002fdff,     0x0002fdff,     0x0002fdff,
-    0x0002fdff,     0x0002fdff,     0x0001feff,     0x0000ffff,
-    /* 103 - Seven (green) bottom-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0004fbff,
-    0x0004fbff,     0x0004fbff,     0x00fc03ff,     0x0000ffff,
-
-    /* 104 - Eight (black) top-left */
-    0x0000ffff,     0x0000ffff,     0x0000fffb,     0x0000fffb,
-    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fffb,
-    /* 105 - Eight (black) top-right */
-    0x0000ffff,     0x0000ffbf,     0x0000ffbf,     0x0000ffbf,
-    0x0000ffbf,     0x0000ffbf,     0x0000ffbf,     0x0000ffdf,
-    /* 106 - Eight (black) bottom-left */
-    0x0000fff7,     0x0000fff7,     0x0000fff7,     0x0000ffef,
-    0x0000ffef,     0x0000ffdf,     0x0000ffdf,     0x0000ffbf,
-    /* 107 - Eight (black) bottom-right */
-    0x0000ffdf,     0x0000ffdf,     0x0000ffef,     0x0000ffef,
-    0x0000fff7,     0x0000fff7,     0x0000fffb,     0x0000fffd,
-    /* 108 - Eight (red) top-left */
-    0x0000ffff,     0x0000ffff,     0x0004fbfb,     0x0004fbfb,
-    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
-    /* 109 - Eight (red) top-right */
-    0x0000ffff,     0x0040bfbf,     0x0040bfbf,     0x0040bfbf,
-    0x0040bfbf,     0x0040bfbf,     0x0040bfbf,     0x0020dfdf,
-    /* 110 - Eight (red) bottom-left */
-    0x0008f7f7,     0x0008f7f7,     0x0008f7f7,     0x0010efef,
-    0x0010efef,     0x0020dfdf,     0x0020dfdf,     0x0040bfbf,
-    /* 111 - Eight (red) bottom-right */
-    0x0020dfdf,     0x0020dfdf,     0x0010efef,     0x0010efef,
-    0x0008f7f7,     0x0008f7f7,     0x0004fbfb,     0x0002fdfd,
-    /* 112 - Eight (green) top-left */
-    0x0000ffff,     0x0000ffff,     0x0004fbff,     0x0004fbff,
-    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
-    /* 113 - Eight (green) top-right */
-    0x0000ffff,     0x0040bfff,     0x0040bfff,     0x0040bfff,
-    0x0040bfff,     0x0040bfff,     0x0040bfff,     0x0020dfff,
-    /* 114 - Eight (green) bottom-left */
-    0x0008f7ff,     0x0008f7ff,     0x0008f7ff,     0x0010efff,
-    0x0010efff,     0x0020dfff,     0x0020dfff,     0x0040bfff,
-    /* 115 - Eight (green) bottom-right */
-    0x0020dfff,     0x0020dfff,     0x0010efff,     0x0010efff,
-    0x0008f7ff,     0x0008f7ff,     0x0004fbff,     0x0002fdff,
-
-    /* 116 - Nine (black) top-left */
-    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fffb,
-    0x0000ff80,     0x0000fffb,     0x0000fffb,     0x0000fffb,
-    /* 117 - Nine (black) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x0000ff1f,     0x0000ffdf,     0x0000ffdf,     0x0000ffdf,
-    /* 118 - Nine (black) bottom-left */
-    0x0000fff7,     0x0000fff7,     0x0000fff7,     0x0000ffef,
-    0x0000ffef,     0x0000ffdf,     0x0000ffbf,     0x0000ff7f,
-    /* 119 - Nine (black) bottom-right */
-    0x0000ffdf,     0x0000ffdf,     0x0000ffdf,     0x0000ffdd,
-    0x0000ffdd,     0x0000ffdd,     0x0000ffe1,     0x0000ffff,
-    /* 120 - Nine (red) top-left */
-    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
-    0x007f8080,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
-    /* 121 - Nine (red) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00e01f1f,     0x0020dfdf,     0x0020dfdf,     0x0020dfdf,
-    /* 122 - Nine (red) bottom-left */
-    0x0008f7f7,     0x0008f7f7,     0x0008f7f7,     0x0010efef,
-    0x0010efef,     0x0020dfdf,     0x0040bfbf,     0x00807f7f,
-    /* 123 - Nine (red) bottom-right */
-    0x0020dfdf,     0x0020dfdf,     0x0020dfdf,     0x0022dddd,
-    0x0022dddd,     0x0022dddd,     0x001ee1e1,     0x0000ffff,
-    /* 124 - Nine (green) top-left */
-    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
-    0x007f80ff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
-    /* 125 - Nine (green) top-right */
-    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    0x00e01fff,     0x0020dfff,     0x0020dfff,     0x0020dfff,
-    /* 126 - Nine (green) bottom-left */
-    0x0008f7ff,     0x0008f7ff,     0x0008f7ff,     0x0010efff,
-    0x0010efff,     0x0020dfff,     0x0040bfff,     0x00807fff,
-    /* 127 - Nine (green) bottom-right */
-    0x0020dfff,     0x0020dfff,     0x0020dfff,     0x0022ddff,
-    0x0022ddff,     0x0022ddff,     0x001ee1ff,     0x0000ffff,
-
-    /*
-     * Card-corner numbers.
-     */
-
-    /* 128 - One (black) on-felt */
+    /* One (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f0d,     0x00003f19,
     0x00003f1d,     0x00003f1d,     0x00003f18,     0x00003f1f,
-    /* 129 - One (black) on-card */
+    /* One (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0d,     0x00003f19,
     0x00003f1d,     0x00003f1d,     0x00003f18,     0x00003f1f,
-    /* 130 - One (red) on-felt */
+    /* One (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* One (red) on-felt */
     0x00000700,     0x00000f07,     0x00021d0d,     0x00063919,
     0x00023d1d,     0x00023d1d,     0x00073818,     0x00003f1f,
-    /* 131 - One (red) on-card */
+    /* One (red) on-card */
     0x00003f18,     0x00003f17,     0x00023d0d,     0x00063919,
     0x00023d1d,     0x00023d1d,     0x00073818,     0x00003f1f,
-    /* 132 - One (green) on-felt */
+    /* One (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* One (green) on-felt */
     0x00000700,     0x00000f07,     0x00021d0f,     0x0006391f,
     0x00023d1f,     0x00023d1f,     0x0007381f,     0x00003f1f,
-    /* 133 - One (green) on-card */
+    /* One (green) on-card */
     0x00003f18,     0x00003f17,     0x00023d0f,     0x0006391f,
     0x00023d1f,     0x00023d1f,     0x0007381f,     0x00003f1f,
+    /* One (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 134 - Two (black) on-felt */
+    /* Two (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f09,     0x00003f1e,
     0x00003f18,     0x00003f1b,     0x00003f18,     0x00003f1f,
-    /* 135 - Two (black) on-card */
+    /* Two (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f09,     0x00003f1e,
     0x00003f18,     0x00003f1b,     0x00003f18,     0x00003f1f,
-    /* 136 - Two (red) on-felt */
+    /* Two (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Two (red) on-felt */
     0x00000700,     0x00000f07,     0x00061909,     0x00013e1e,
     0x00073818,     0x00043b1b,     0x00073818,     0x00003f1f,
-    /* 137 - Two (red) on-card */
+    /* Two (red) on-card */
     0x00003f18,     0x00003f17,     0x00063909,     0x00013e1e,
     0x00073818,     0x00043b1b,     0x00073818,     0x00003f1f,
-    /* 138 - Two (green) on-felt */
+    /* Two (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Two (green) on-felt */
     0x00000700,     0x00000f07,     0x0006190f,     0x00013e1f,
     0x0007381f,     0x00043b1f,     0x0007381f,     0x00003f1f,
-    /* 139 - Two (green) on-card */
+    /* Two (green) on-card */
     0x00003f18,     0x00003f17,     0x0006390f,     0x00013e1f,
     0x0007381f,     0x00043b1f,     0x0007381f,     0x00003f1f,
+    /* Two (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 140 - Three (black) on-felt */
+    /* Three (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1e,
     0x00003f1c,     0x00003f1e,     0x00003f18,     0x00003f1f,
-    /* 141 - Three (black) on-card */
+    /* Three (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1e,
     0x00003f1c,     0x00003f1e,     0x00003f18,     0x00003f1f,
-    /* 142 - Three (red) on-felt */
+    /* Three (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Three (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00013e1e,
     0x00033c1c,     0x00013e1e,     0x00073818,     0x00003f1f,
-    /* 143 - Three (red) on-card */
+    /* Three (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00013e1e,
     0x00033c1c,     0x00013e1e,     0x00073818,     0x00003f1f,
-    /* 144 - Three (green) on-felt */
+    /* Three (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Three (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00013e1f,
     0x00033c1f,     0x00013e1f,     0x0007381f,     0x00003f1f,
-    /* 145 - Three (green) on-card */
+    /* Three (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00013e1f,
     0x00033c1f,     0x00013e1f,     0x0007381f,     0x00003f1f,
+    /* Three (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 146 - Four (black) on-felt */
+    /* Four (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f0a,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* 147 - Four (black) on-card */
+    /* Four (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0a,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* 148 - Four (red) on-felt */
+    /* Four (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Four (red) on-felt */
     0x00000700,     0x00000f07,     0x00051a0a,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* 149 - Four (red) on-card */
+    /* Four (red) on-card */
     0x00003f18,     0x00003f17,     0x00053a0a,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* 150 - Four (green) on-felt */
+    /* Four (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Four (green) on-felt */
     0x00000700,     0x00000f07,     0x00051a0f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
-    /* 151 - Four (green) on-card */
+    /* Four (green) on-card */
     0x00003f18,     0x00003f17,     0x00053a0f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
+    /* Four (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 152 - Five (black) on-felt */
+    /* Five (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1b,
     0x00003f18,     0x00003f1e,     0x00003f19,     0x00003f1f,
-    /* 153 - Five (black) on-card */
+    /* Five (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1b,
     0x00003f18,     0x00003f1e,     0x00003f19,     0x00003f1f,
-    /* 154 - Five (red) on-felt */
+    /* Five (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Five (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00043b1b,
     0x00073818,     0x00013e1e,     0x00063919,     0x00003f1f,
-    /* 155 - Five (red) on-card */
+    /* Five (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00043b1b,
     0x00073818,     0x00013e1e,     0x00063919,     0x00003f1f,
-    /* 156 - Five (green) on-felt */
+    /* Five (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Five (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00043b1f,
     0x0007381f,     0x00013e1f,     0x0006391f,     0x00003f1f,
-    /* 157 - Five (green) on-card */
+    /* Five (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00043b1f,
     0x0007381f,     0x00013e1f,     0x0006391f,     0x00003f1f,
+    /* Five (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 158 - Six (black) on-felt */
+    /* Six (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f0c,     0x00003f1b,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* 159 - Six (black) on-card */
+    /* Six (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0c,     0x00003f1b,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* 160 - Six (red) on-felt */
+    /* Six (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Six (red) on-felt */
     0x00000700,     0x00000f07,     0x00031c0c,     0x00043b1b,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* 161 - Six (red) on-card */
+    /* Six (red) on-card */
     0x00003f18,     0x00003f17,     0x00033c0c,     0x00043b1b,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* 162 - Six (green) on-felt */
+    /* Six (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Six (green) on-felt */
     0x00000700,     0x00000f07,     0x00031c0f,     0x00043b1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
-    /* 163 - Six (green) on-card */
+    /* Six (green) on-card */
     0x00003f18,     0x00003f17,     0x00033c0f,     0x00043b1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
+    /* Six (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 164 - Seven (black) on-felt */
+    /* Seven (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1e,
     0x00003f1d,     0x00003f1d,     0x00003f1d,     0x00003f1f,
-    /* 165 - Seven (black) on-card */
+    /* Seven (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1e,
     0x00003f1d,     0x00003f1d,     0x00003f1d,     0x00003f1f,
-    /* 166 - Seven (red) on-felt */
+    /* Seven (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Seven (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00013e1e,
     0x00023d1d,     0x00023d1d,     0x00023d1d,     0x00003f1f,
-    /* 167 - Seven (red) on-card */
+    /* Seven (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00013e1e,
     0x00023d1d,     0x00023d1d,     0x00023d1d,     0x00003f1f,
-    /* 168 - Seven (green) on-felt */
+    /* Seven (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Seven (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00013e1f,
     0x00023d1f,     0x00023d1f,     0x00023d1f,     0x00003f1f,
-    /* 169 - Seven (green) on-card */
+    /* Seven (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00013e1f,
     0x00023d1f,     0x00023d1f,     0x00023d1f,     0x00003f1f,
+    /* Seven (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 170 - Eight (black) on-felt */
+    /* Eight (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1a,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* 171 - Eight (black) on-card */
+    /* Eight (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1a,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* 172 - Eight (red) on-felt */
+    /* Eight (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Eight (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00053a1a,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* 173 - Eight (red) on-card */
+    /* Eight (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00053a1a,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* 174 - Eight (green) on-felt */
+    /* Eight (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Eight (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00053a1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
-    /* 175 - Eight (green) on-card */
+    /* Eight (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00053a1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
+    /* Eight (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
-    /* 176 - Nine (black) on-felt */
+    /* Nine (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* 177 - Nine (black) on-card */
+    /* Nine (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* 178 - Nine (red) on-felt */
+    /* Nine (black) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Nine (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* 179 - Nine (red) on-card */
+    /* Nine (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* 180 - Nine (green) on-felt */
+    /* Nine (red) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
+    /* Nine (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
-    /* 181 - Nine (green) on-card */
+    /* Nine (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
+    /* Nine (green) on-felt flipped */
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /*
-     * Card-corner prints.
+     * 105 - Card-corner prints.
      */
 
-    /* 182 - Claw (black) on-felt left */
+    /* Claw (black) on-felt left */
     0x00000700,     0x00000f07,     0x00001f0e,     0x00003f1e,
     0x00003f1a,     0x00003f1c,     0x00003f1e,     0x00003f1f,
-    /* 183 - Claw (black) on-card left */
+    /* Claw (black) on-card left */
     0x00003f18,     0x00003f17,     0x00003f0e,     0x00003f1e,
     0x00003f1a,     0x00003f1c,     0x00003f1e,     0x00003f1f,
-    /* 184 - Claw (black) right */
+    /* Claw (black) right */
     0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffbf,     0x0000ff7f,     0x0000ffff,     0x0000ffff,
 
-    /* 185 - Paw (red) on-felt left */
+    /* Paw (red) on-felt left */
     0x00000700,     0x00000f07,     0x00011e0e,     0x00043b1b,
     0x00013e1e,     0x00033c1c,     0x00033c1c,     0x00003f1f,
-    /* 186 - Paw (red) on-card left */
+    /* Paw (red) on-card left */
     0x00003f18,     0x00003f17,     0x00013e0e,     0x00043b1b,
     0x00013e1e,     0x00033c1c,     0x00033c1c,     0x00003f1f,
-    /* 187 - Paw (red) right */
+    /* Paw (red) right */
     0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0040bfbf,
     0x0000ffff,     0x00807f7f,     0x00807f7f,     0x0000ffff,
 
-    /* 188 - Hoof (green) on-felt left */
+    /* Hoof (green) on-felt left */
     0x00000700,     0x00000f07,     0x00021d0f,     0x0006391f,
     0x0006391f,     0x00003f1f,     0x00023d1f,     0x00003f1f,
-    /* 189 - Hoof (green) on-card left */
+    /* Hoof (green) on-card left */
     0x00003f18,     0x00003f17,     0x00023d0f,     0x0006391f,
     0x0006391f,     0x00003f1f,     0x00023d1f,     0x00003f1f,
-    /* 190 - Hoof (green) right */
+    /* Hoof (green) right */
     0x0000ff00,     0x0000ffff,     0x00807fff,     0x00c03fff,
     0x00c03fff,     0x0000ffff,     0x00807fff,     0x0000ffff,
 
     /*
-     * Card-corner snep.
+     * 114 - Card-corner snep.
      */
 
-    /* 191 - Snep on-felt*/
+    /* Snep on-felt*/
     0x00000700,     0x00000f07,     0x00001f0f,     0x00063f1f,
     0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
-    /* 192 - Snep on-card*/
+    /* Snep on-card*/
     0x00003f18,     0x00003f17,     0x00003f0f,     0x00063f1f,
     0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
 
     /*
-     * Middle prints.
+     * 116 - Chinese characters are Gnu Unifont at 16 × 16 pixels.
      */
 
-    /* 193 - Claw top-left */
+    /* One (black) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff00,
+    /* One (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff01,
+    /* One (black) bottom-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 194 - Claw top-right */
+    /* One (black) bottom-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 195 - Claw bottom-left */
+    /* One (red) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00ff0000,
+    /* One (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00fe0101,
+    /* One (red) bottom-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 196 - Claw bottom-right */
+    /* One (red) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* One (green) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00ff00ff,
+    /* One (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00fe01ff,
+    /* One (green) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* One (green) bottom-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
-    /* 197 - Paw top-left */
+    /* Two (black) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffc0,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff07,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (black) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ff00,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (black) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ff01,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (red) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0c0,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f80707,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (red) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00ff0000,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (red) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00fe0101,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (green) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0ff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f807ff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (green) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00ff00ff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Two (green) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00fe01ff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+
+    /* Three (black) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ff80,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffc0,
+    /* Three (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ff03,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ff07,
+    /* Three (black) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ff00,     0x0000ffff,     0x0000ffff,
+    /* Three (black) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ff01,     0x0000ffff,     0x0000ffff,
+    /* Three (red) top-left */
+    0x0000ffff,     0x0000ffff,     0x007f8080,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0c0,
+    /* Three (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x00fc0303,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f80707,
+    /* Three (red) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00ff0000,     0x0000ffff,     0x0000ffff,
+    /* Three (red) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00fe0101,     0x0000ffff,     0x0000ffff,
+    /* Three (green) top-left */
+    0x0000ffff,     0x0000ffff,     0x007f80ff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x003fc0ff,
+    /* Three (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x00fc03ff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x00f807ff,
+    /* Three (green) bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00ff00ff,     0x0000ffff,     0x0000ffff,
+    /* Three (green) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00fe01ff,     0x0000ffff,     0x0000ffff,
+
+    /* Four (black) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ff80,     0x0000ffbb,
+    0x0000ffbb,     0x0000ffbb,     0x0000ffbb,     0x0000ffbb,
+    /* Four (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ff03,     0x0000ffbb,
+    0x0000ffbb,     0x0000ffbb,     0x0000ffbb,     0x0000ffbb,
+    /* Four (black) bottom-left */
+    0x0000ffb7,     0x0000ffb7,     0x0000ffaf,     0x0000ff9f,
+    0x0000ffbf,     0x0000ff80,     0x0000ffbf,     0x0000ffff,
+    /* Four (black) bottom-right */
+    0x0000ffbb,     0x0000ffc3,     0x0000fffb,     0x0000fffb,
+    0x0000fffb,     0x0000ff03,     0x0000fffb,     0x0000ffff,
+    /* Four (red) top-left */
+    0x0000ffff,     0x0000ffff,     0x007f8080,     0x0044bbbb,
+    0x0044bbbb,     0x0044bbbb,     0x0044bbbb,     0x0044bbbb,
+    /* Four (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x00fc0303,     0x0044bbbb,
+    0x0044bbbb,     0x0044bbbb,     0x0044bbbb,     0x0044bbbb,
+    /* Four (red) bottom-left */
+    0x0048b7b7,     0x0048b7b7,     0x0050afaf,     0x00609f9f,
+    0x0040bfbf,     0x007f8080,     0x0040bfbf,     0x0000ffff,
+    /* Four (red) bottom-right */
+    0x0044bbbb,     0x003cc3c3,     0x0004fbfb,     0x0004fbfb,
+    0x0004fbfb,     0x00fc0303,     0x0004fbfb,     0x0000ffff,
+    /* Four (green) top-left */
+    0x0000ffff,     0x0000ffff,     0x007f80ff,     0x0044bbff,
+    0x0044bbff,     0x0044bbff,     0x0044bbff,     0x0044bbff,
+    /* Four (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x00fc03ff,     0x0044bbff,
+    0x0044bbff,     0x0044bbff,     0x0044bbff,     0x0044bbff,
+    /* Four (green) bottom-left */
+    0x0048b7ff,     0x0048b7ff,     0x0050afff,     0x00609fff,
+    0x0040bfff,     0x007f80ff,     0x0040bfff,     0x0000ffff,
+    /* Four (green) bottom-right */
+    0x0044bbff,     0x003cc3ff,     0x0004fbff,     0x0004fbff,
+    0x0004fbff,     0x00fc03ff,     0x0004fbff,     0x0000ffff,
+
+    /* Five (black) top-left */
+    0x0000ffff,     0x0000ff80,     0x0000fffd,     0x0000fffd,
+    0x0000fffd,     0x0000fffd,     0x0000ffc0,     0x0000fffb,
+    /* Five (black) top-right */
+    0x0000ffff,     0x0000ff03,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ff0f,     0x0000ffef,
+    /* Five (black) bottom-left */
+    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fff7,
+    0x0000fff7,     0x0000fff7,     0x0000ff00,     0x0000ffff,
+    /* Five (black) bottom-right */
+    0x0000ffef,     0x0000ffef,     0x0000ffef,     0x0000ffef,
+    0x0000ffef,     0x0000ffef,     0x0000ff01,     0x0000ffff,
+    /* Five (red) top-left */
+    0x0000ffff,     0x007f8080,     0x0002fdfd,     0x0002fdfd,
+    0x0002fdfd,     0x0002fdfd,     0x003fc0c0,     0x0004fbfb,
+    /* Five (red) top-right */
+    0x0000ffff,     0x00fc0303,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x00f00f0f,     0x0010efef,
+    /* Five (red) bottom-left */
+    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0008f7f7,
+    0x0008f7f7,     0x0008f7f7,     0x00ff0000,     0x0000ffff,
+    /* Five (red) bottom-right */
+    0x0010efef,     0x0010efef,     0x0010efef,     0x0010efef,
+    0x0010efef,     0x0010efef,     0x00fe0101,     0x0000ffff,
+    /* Five (green) top-left */
+    0x0000ffff,     0x007f80ff,     0x0002fdff,     0x0002fdff,
+    0x0002fdff,     0x0002fdff,     0x003fc0ff,     0x0004fbff,
+    /* Five (green) top-right */
+    0x0000ffff,     0x00fc03ff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x00f00fff,     0x0010efff,
+    /* Five (green) bottom-left */
+    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0008f7ff,
+    0x0008f7ff,     0x0008f7ff,     0x00ff00ff,     0x0000ffff,
+    /* Five (green) bottom-right */
+    0x0010efff,     0x0010efff,     0x0010efff,     0x0010efff,
+    0x0010efff,     0x0010efff,     0x00fe01ff,     0x0000ffff,
+
+    /* Six (black) top-left */
+    0x0000fffd,     0x0000fffe,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ff00,     0x0000ffff,     0x0000ffff,
+    /* Six (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ff7f,     0x0000ff7f,
+    0x0000ffff,     0x0000ff01,     0x0000ffff,     0x0000ffff,
+    /* Six (black) bottom-left */
+    0x0000fffb,     0x0000fffb,     0x0000fff7,     0x0000fff7,
+    0x0000ffef,     0x0000ffdf,     0x0000ffbf,     0x0000ffff,
+    /* Six (black) bottom-right */
+    0x0000ffbf,     0x0000ffdf,     0x0000ffef,     0x0000fff7,
+    0x0000fff7,     0x0000fffb,     0x0000fffb,     0x0000ffff,
+    /* Six (red) top-left */
+    0x0002fdfd,     0x0001fefe,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00ff0000,     0x0000ffff,     0x0000ffff,
+    /* Six (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x00807f7f,     0x00807f7f,
+    0x0000ffff,     0x00fe0101,     0x0000ffff,     0x0000ffff,
+    /* Six (red) bottom-left */
+    0x0004fbfb,     0x0004fbfb,     0x0008f7f7,     0x0008f7f7,
+    0x0010efef,     0x0020dfdf,     0x0040bfbf,     0x0000ffff,
+    /* Six (red) bottom-right */
+    0x0040bfbf,     0x0020dfdf,     0x0010efef,     0x0008f7f7,
+    0x0008f7f7,     0x0004fbfb,     0x0004fbfb,     0x0000ffff,
+    /* Six (green) top-left */
+    0x0002fdff,     0x0001feff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x00ff00ff,     0x0000ffff,     0x0000ffff,
+    /* Six (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x00807fff,     0x00807fff,
+    0x0000ffff,     0x00fe01ff,     0x0000ffff,     0x0000ffff,
+    /* Six (green) bottom-left */
+    0x0004fbff,     0x0004fbff,     0x0008f7ff,     0x0008f7ff,
+    0x0010efff,     0x0020dfff,     0x0040bfff,     0x0000ffff,
+    /* Six (green) bottom-right */
+    0x0040bfff,     0x0020dfff,     0x0010efff,     0x0008f7ff,
+    0x0008f7ff,     0x0004fbff,     0x0004fbff,     0x0000ffff,
+
+    /* Seven (black) top-left */
+    0x0000fffd,     0x0000fffd,     0x0000fffd,     0x0000fffd,
+    0x0000fffd,     0x0000fffd,     0x0000fff8,     0x0000ff05,
+    /* Seven (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffc3,     0x0000ff3f,     0x0000ffff,
+    /* Seven (black) bottom-left */
+    0x0000fffd,     0x0000fffd,     0x0000fffd,     0x0000fffd,
+    0x0000fffd,     0x0000fffd,     0x0000fffe,     0x0000ffff,
+    /* Seven (black) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000fffb,
+    0x0000fffb,     0x0000fffb,     0x0000ff03,     0x0000ffff,
+    /* Seven (red) top-left */
+    0x0002fdfd,     0x0002fdfd,     0x0002fdfd,     0x0002fdfd,
+    0x0002fdfd,     0x0002fdfd,     0x0007f8f8,     0x00fa0505,
+    /* Seven (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x003cc3c3,     0x00c03f3f,     0x0000ffff,
+    /* Seven (red) bottom-left */
+    0x0002fdfd,     0x0002fdfd,     0x0002fdfd,     0x0002fdfd,
+    0x0002fdfd,     0x0002fdfd,     0x0001fefe,     0x0000ffff,
+    /* Seven (red) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0004fbfb,
+    0x0004fbfb,     0x0004fbfb,     0x00fc0303,     0x0000ffff,
+    /* Seven (green) top-left */
+    0x0002fdff,     0x0002fdff,     0x0002fdff,     0x0002fdff,
+    0x0002fdff,     0x0002fdff,     0x0007f8ff,     0x00fa05ff,
+    /* Seven (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x003cc3ff,     0x00c03fff,     0x0000ffff,
+    /* Seven (green) bottom-left */
+    0x0002fdff,     0x0002fdff,     0x0002fdff,     0x0002fdff,
+    0x0002fdff,     0x0002fdff,     0x0001feff,     0x0000ffff,
+    /* Seven (green) bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0004fbff,
+    0x0004fbff,     0x0004fbff,     0x00fc03ff,     0x0000ffff,
+
+    /* Eight (black) top-left */
+    0x0000ffff,     0x0000ffff,     0x0000fffb,     0x0000fffb,
+    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fffb,
+    /* Eight (black) top-right */
+    0x0000ffff,     0x0000ffbf,     0x0000ffbf,     0x0000ffbf,
+    0x0000ffbf,     0x0000ffbf,     0x0000ffbf,     0x0000ffdf,
+    /* Eight (black) bottom-left */
+    0x0000fff7,     0x0000fff7,     0x0000fff7,     0x0000ffef,
+    0x0000ffef,     0x0000ffdf,     0x0000ffdf,     0x0000ffbf,
+    /* Eight (black) bottom-right */
+    0x0000ffdf,     0x0000ffdf,     0x0000ffef,     0x0000ffef,
+    0x0000fff7,     0x0000fff7,     0x0000fffb,     0x0000fffd,
+    /* Eight (red) top-left */
+    0x0000ffff,     0x0000ffff,     0x0004fbfb,     0x0004fbfb,
+    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
+    /* Eight (red) top-right */
+    0x0000ffff,     0x0040bfbf,     0x0040bfbf,     0x0040bfbf,
+    0x0040bfbf,     0x0040bfbf,     0x0040bfbf,     0x0020dfdf,
+    /* Eight (red) bottom-left */
+    0x0008f7f7,     0x0008f7f7,     0x0008f7f7,     0x0010efef,
+    0x0010efef,     0x0020dfdf,     0x0020dfdf,     0x0040bfbf,
+    /* Eight (red) bottom-right */
+    0x0020dfdf,     0x0020dfdf,     0x0010efef,     0x0010efef,
+    0x0008f7f7,     0x0008f7f7,     0x0004fbfb,     0x0002fdfd,
+    /* Eight (green) top-left */
+    0x0000ffff,     0x0000ffff,     0x0004fbff,     0x0004fbff,
+    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
+    /* Eight (green) top-right */
+    0x0000ffff,     0x0040bfff,     0x0040bfff,     0x0040bfff,
+    0x0040bfff,     0x0040bfff,     0x0040bfff,     0x0020dfff,
+    /* Eight (green) bottom-left */
+    0x0008f7ff,     0x0008f7ff,     0x0008f7ff,     0x0010efff,
+    0x0010efff,     0x0020dfff,     0x0020dfff,     0x0040bfff,
+    /* Eight (green) bottom-right */
+    0x0020dfff,     0x0020dfff,     0x0010efff,     0x0010efff,
+    0x0008f7ff,     0x0008f7ff,     0x0004fbff,     0x0002fdff,
+
+    /* Nine (black) top-left */
+    0x0000fffb,     0x0000fffb,     0x0000fffb,     0x0000fffb,
+    0x0000ff80,     0x0000fffb,     0x0000fffb,     0x0000fffb,
+    /* Nine (black) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ff1f,     0x0000ffdf,     0x0000ffdf,     0x0000ffdf,
+    /* Nine (black) bottom-left */
+    0x0000fff7,     0x0000fff7,     0x0000fff7,     0x0000ffef,
+    0x0000ffef,     0x0000ffdf,     0x0000ffbf,     0x0000ff7f,
+    /* Nine (black) bottom-right */
+    0x0000ffdf,     0x0000ffdf,     0x0000ffdf,     0x0000ffdd,
+    0x0000ffdd,     0x0000ffdd,     0x0000ffe1,     0x0000ffff,
+    /* Nine (red) top-left */
+    0x0004fbfb,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
+    0x007f8080,     0x0004fbfb,     0x0004fbfb,     0x0004fbfb,
+    /* Nine (red) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00e01f1f,     0x0020dfdf,     0x0020dfdf,     0x0020dfdf,
+    /* Nine (red) bottom-left */
+    0x0008f7f7,     0x0008f7f7,     0x0008f7f7,     0x0010efef,
+    0x0010efef,     0x0020dfdf,     0x0040bfbf,     0x00807f7f,
+    /* Nine (red) bottom-right */
+    0x0020dfdf,     0x0020dfdf,     0x0020dfdf,     0x0022dddd,
+    0x0022dddd,     0x0022dddd,     0x001ee1e1,     0x0000ffff,
+    /* Nine (green) top-left */
+    0x0004fbff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
+    0x007f80ff,     0x0004fbff,     0x0004fbff,     0x0004fbff,
+    /* Nine (green) top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x00e01fff,     0x0020dfff,     0x0020dfff,     0x0020dfff,
+    /* Nine (green) bottom-left */
+    0x0008f7ff,     0x0008f7ff,     0x0008f7ff,     0x0010efff,
+    0x0010efff,     0x0020dfff,     0x0040bfff,     0x00807fff,
+    /* Nine (green) bottom-right */
+    0x0020dfff,     0x0020dfff,     0x0020dfff,     0x0022ddff,
+    0x0022ddff,     0x0022ddff,     0x001ee1ff,     0x0000ffff,
+
+    /*
+     * 224 - Artwork for prints.
+     */
+
+    /* Claw top-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 198 - Paw top-right */
+    /* Claw top-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 199 - Paw bottom-left */
+    /* Claw bottom-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 200 - Paw bottom-right */
+    /* Claw bottom-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
-    /* 201 - Hoof top-left */
+    /* Paw top-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 202 - Hoof top-right */
+    /* Paw top-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 203 - Hoof bottom-left */
+    /* Paw bottom-left */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 204 - Hoof bottom-right */
+    /* Paw bottom-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+
+    /* Hoof top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Hoof top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Hoof bottom-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Hoof bottom-right */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
@@ -687,94 +785,82 @@ const uint32_t patterns [] = {
      * Snep artwork 4×4 (TODO).
      */
 
-    /* 205 - Snep artwork (0, 0) */
+    /* Snep artwork (0, 0) */
     0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
     0x000f3f19,     0x00073f1c,     0x00073f1c,     0x00033f1e,
-    /* 206 - Snep artwork (1, 0) */
+    /* Snep artwork (1, 0) */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0080ffff,     0x0080ffff,     0x00c0ff7f,
-    /* 207 - Snep artwork (2, 0) */
+    /* Snep artwork (2, 0) */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 208 - Snep artwork (3, 0) */
+    /* Snep artwork (3, 0) */
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    /* 209 - Snep artwork (0, 1) */
+    /* Snep artwork (0, 1) */
     0x00033f1e,     0x00013f1f,     0x00003f1f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 210 - Snep artwork (1, 1) */
+    /* Snep artwork (1, 1) */
     0x00e0ff3f,     0x00f0ff1f,     0x00f8ff8f,     0x007cffc7,
     0x003effe3,     0x001ffff1,     0x000ffff8,     0x0007fffc,
-    /* 211 - Snep artwork (2, 1) */
+    /* Snep artwork (2, 1) */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0080ffff,     0x00c0ff7f,
-    /* 212 - Snep artwork (3, 1) */
+    /* Snep artwork (3, 1) */
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    /* 213 - Snep artwork (0, 2) */
+    /* Snep artwork (0, 2) */
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 214 - Snep artwork (1, 2) */
+    /* Snep artwork (1, 2) */
     0x0003fffe,     0x0001ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 215 - Snep artwork (2, 2) */
+    /* Snep artwork (2, 2) */
     0x00e0ff3f,     0x00f0ff1f,     0x00f8ff8f,     0x007cffc7,
     0x003effe3,     0x001ffff1,     0x000ffff8,     0x0007fffc,
-    /* 216 - Snep artwork (3, 2) */
+    /* Snep artwork (3, 2) */
     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
     0x0000fcf8,     0x0000fcf8,     0x0080fcf8,     0x00c0fc78,
-    /* 217 - Snep artwork (0, 3) */
+    /* Snep artwork (0, 3) */
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
     0x00003f1f,     0x00003f1f,     0x00003f1f,     0x00003f1f,
-    /* 218 - Snep artwork (1, 3) */
+    /* Snep artwork (1, 3) */
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 219 - Snep artwork (2, 3) */
+    /* Snep artwork (2, 3) */
     0x0003fffe,     0x0001ffff,     0x0001ffff,     0x0000ffff,
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
-    /* 220 - Snep artwork (3, 3) */
+    /* Snep artwork (3, 3) */
     0x00c0fc78,     0x00e0fc38,     0x00e0fc38,     0x00f0fc98,
     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,
 
-    /* 221 - Cursor (black) top-left */
-    0x0000c0c0,     0x0000e0a0,     0x0000f090,     0x0000f888,
-    0x0000fc84,     0x0000fe82,     0x0000ff81,     0x0000ff80,
-    /* 222 - Cursor (black) top-right */
-    0x00000000,     0x00000000,     0x00000000,     0x00000000,
-    0x00000000,     0x00000000,     0x00000000,     0x00008080,
-    /* 223 - Cursor (black) bottom-left */
-    0x0000ff80,     0x0000ff83,     0x0000fe92,     0x0000efa9,
-    0x0000cfc9,     0x00008784,     0x00000704,     0x00000303,
-    /* 224 - Cursor (black) bottom-right */
-    0x0000c040,     0x0000e0e0,     0x00000000,     0x00000000,
-    0x00000000,     0x00008080,     0x00008080,     0x00008080,
+    /*
+     * 252 - Empty card outline.
+     */
 
-    /* 225 - Cursor (silver) top-left */
-    0x00008000,     0x0080c080,     0x00c0e080,     0x00e0f080,
-    0x00b0f8c0,     0x00b8fcc0,     0x009cfee0,     0x009effe0,
-    /* 226 - Cursor (silver) top-right */
+    /* Outline top-left */
+    0x00000007,     0x00000008,     0x00000010,     0x00000020,
+    0x00000020,     0x00000020,     0x00000020,     0x00000020,
+    /* Outline top-edge */
+    0x000000ff,     0x00000000,     0x00000000,     0x00000000,
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
+    /* Outline top-right */
+    0x000000e0,     0x00000010,     0x00000008,     0x00000004,
+    0x00000004,     0x00000004,     0x00000004,     0x00000004,
+    /* Outline left-edge */
+    0x00000020,     0x00000020,     0x00000020,     0x00000020,
+    0x00000020,     0x00000020,     0x00000020,     0x00000020,
+    /* Outline right-edge */
+    0x00000004,     0x00000004,     0x00000004,     0x00000004,
+    0x00000004,     0x00000004,     0x00000004,     0x00000004,
+    /* Outline bottom-left */
+    0x00000020,     0x00000020,     0x00000020,     0x00000020,
+    0x00000020,     0x00000010,     0x00000008,     0x00000007,
+    /* Outline bottom-edge */
     0x00000000,     0x00000000,     0x00000000,     0x00000000,
-    /* 227 - Cursor (silver) bottom-left */
-    0x008ffff0,     0x0090ffe0,     0x00a4fec8,     0x00caef8c,
-    0x008acf8c,     0x00058706,     0x00070704,     0x00000300,
-    /* 228 - Cursor (silver) bottom-right */
-    0x00008000,     0x0000c000,     0x00000000,     0x00000000,
-    0x00000000,     0x00008000,     0x00008000,     0x00008000,
-
-    /* 229 - Cursor (white) top-left */
-    0x0000c000,     0x0000e040,     0x0000f060,     0x0000f870,
-    0x0000fc78,     0x0000fe7c,     0x0000ff7e,     0x0000ff7f,
-    /* 230 - Cursor (white) top-right */
-    0x00000000,     0x00000000,     0x00000000,     0x00000000,
-    0x00000000,     0x00000000,     0x00000000,     0x00008000,
-    /* 231 - Cursor (white) bottom-left */
-    0x0000ff7f,     0x0000ff7c,     0x0000fe6c,     0x0000ef46,
-    0x0000cf06,     0x00008703,     0x00000703,     0x00000300,
-    /* 232 - Cursor (white) bottom-right */
-    0x0000c080,     0x0000e000,     0x00000000,     0x00000000,
-    0x00000000,     0x00008000,     0x00008000,     0x00008000,
-
-
+    0x00000000,     0x00000000,     0x00000000,     0x000000ff,
+    /* Outline bottom-right */
+    0x00000004,     0x00000004,     0x00000004,     0x00000004,
+    0x00000004,     0x00000008,     0x00000010,     0x000000e0,
 };
 

@@ -115,15 +115,15 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
     uint8_t tile;
 
     uint16_t card_tiles [] = {
-         9, 11, 11, 12,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        14, 15, 15, 16,
-        17, 18, 18, 19
+        BLANK_CARD +  0, BLANK_CARD +  2, BLANK_CARD +  2, BLANK_CARD +  3,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  8, BLANK_CARD +  9, BLANK_CARD +  9, BLANK_CARD + 10
     };
 
-    if ((card & 0x30) == 0x30)
+    if ((card & TYPE_BITS) == 0x30)
     {
         if (value == 3)
         {
@@ -157,12 +157,12 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         uint8_t colour = card >> 4;
 
         /* Card corners */
-        tile = CORNER_NUMBERS + value * 6 + colour * 2;
+        tile = CORNER_NUMBERS + value * 9 + colour * 3;
         card_tiles [ 0] = tile;
         card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
 
         /* Chinese numbers */
-        tile = ARTWORK_CHINESE + value * 12 + colour * 4;
+        tile = ARTWORK_NUMBERS + value * 12 + colour * 4;
         card_tiles [ 9] = tile;
         card_tiles [10] = tile + 1;
         card_tiles [13] = tile + 2;
@@ -173,7 +173,7 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
     {
         /* Show top of card below */
         card_tiles [0] += 1;
-        card_tiles [3] = 13;
+        card_tiles [3] += 1;
     }
 
     memcpy (buf, card_tiles, sizeof (card_tiles));
@@ -534,15 +534,15 @@ void render_card_background (uint8_t col, uint8_t y, uint8_t card, bool stacked,
 void render_background (void)
 {
     uint16_t blank_line [] = {
-        0, 0, 0, 0
+        EMPTY_TILE, EMPTY_TILE, EMPTY_TILE, EMPTY_TILE
     };
     uint16_t empty_slot [] = {
-        1, 2, 2, 3,
-        4, 0, 0, 5,
-        4, 0, 0, 5,
-        4, 0, 0, 5,
-        4, 0, 0, 5,
-        6, 7, 7, 8
+        OUTLINE_CARD + 0, OUTLINE_CARD + 1, OUTLINE_CARD + 1, OUTLINE_CARD + 2,
+        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
+        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
+        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
+        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
+        OUTLINE_CARD + 5, OUTLINE_CARD + 6, OUTLINE_CARD + 6, OUTLINE_CARD + 7
     };
 
     /* Dragons & Foundations*/
