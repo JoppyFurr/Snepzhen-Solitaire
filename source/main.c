@@ -278,42 +278,20 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
 
 /*
  * Render the cursor and its held cards, as sprites.
+ * Position specified as (x, y) coordinate.
  */
-void cursor_render (void)
+void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 {
-    uint8_t cursor_x;
-    uint8_t cursor_y;
-
     /* Clear any previous sprites */
     SMS_initSprites ();
 
-    /* Cursor coordinates */
-    cursor_x = (cursor_stack & 0x07) * 32 + 16;
-
-    if (cursor_stack == CURSOR_DRAGON_BUTTONS)
+    if (cursor_visible)
     {
-        cursor_y = (cursor_depth * 16) + 16;
+        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_WHITE    ));
+        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_WHITE + 1));
+        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_WHITE + 2));
+        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_WHITE + 3));
     }
-    else if (cursor_stack > CURSOR_COLUMN_8)
-    {
-        cursor_y = 12;
-    }
-    else
-    {
-        cursor_y = (cursor_depth * 8) + 76;
-    }
-
-    /* Offset the cursor if we're holding a card */
-    if (stack [HELD] [0] != 0xff)
-    {
-        cursor_x += 2;
-        cursor_y += 12;
-    }
-
-    SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_WHITE    ));
-    SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_WHITE + 1));
-    SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_WHITE + 2));
-    SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_WHITE + 3));
 
     /* Render held cards as sprites */
     if (stack [HELD] [0] != 0xff)
@@ -345,6 +323,50 @@ void cursor_render (void)
     }
 
     sprite_update = true;
+}
+
+
+/*
+ * Convert cursor (stack, depth) coordinates into (x, y).
+ */
+void cursor_sd_to_xy (uint8_t stack, uint8_t depth, uint8_t *x, uint8_t *y)
+{
+    *x = (stack & 0x07) * 32 + 16;
+
+    if (stack == CURSOR_DRAGON_BUTTONS)
+    {
+        *y = (depth * 16) + 16;
+    }
+    else if (stack > CURSOR_COLUMN_8)
+    {
+        *y = 12;
+    }
+    else
+    {
+        *y = (depth * 8) + 76;
+    }
+}
+
+
+/*
+ * Render the cursor and its held cards, as sprites.
+ * Position specified as (stack, depth) coordinate.
+ */
+void cursor_render (void)
+{
+    uint8_t cursor_x;
+    uint8_t cursor_y;
+
+    cursor_sd_to_xy (cursor_stack, cursor_depth, &cursor_x, &cursor_y);
+
+    /* Offset the cursor if we're holding a card */
+    if (stack [HELD] [0] != 0xff)
+    {
+        cursor_x += 2;
+        cursor_y += 12;
+    }
+
+    cursor_render_xy (cursor_x, cursor_y, true);
 }
 
 
