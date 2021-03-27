@@ -303,11 +303,25 @@ void cursor_move (uint8_t direction)
         case PORT_A_KEY_LEFT:
             cursor_stack = (cursor_stack + (CURSOR_STACK_MAX - 1)) % CURSOR_STACK_MAX;
             cursor_depth = CURSOR_DEPTH_MAX;
+
+            /* Skip over the buttons if holding a card */
+            if (cursor_stack == CURSOR_DRAGON_BUTTONS && stack [HELD] [0] != 0xff)
+            {
+                cursor_stack--;
+            }
             break;
+
         case PORT_A_KEY_RIGHT:
             cursor_stack = (cursor_stack + 1) % CURSOR_STACK_MAX;
             cursor_depth = CURSOR_DEPTH_MAX;
+
+            /* Skip over the buttons if holding a card */
+            if (cursor_stack == CURSOR_DRAGON_BUTTONS && stack [HELD] [0] != 0xff)
+            {
+                cursor_stack++;
+            }
             break;
+
         case PORT_A_KEY_UP:
             if (cursor_stack <= CURSOR_COLUMN_8 &&
                 stack [HELD] [0] == 0xff && cursor_depth > 0)
@@ -315,6 +329,7 @@ void cursor_move (uint8_t direction)
                 cursor_depth--;
             }
             break;
+
         case PORT_A_KEY_DOWN:
             cursor_depth++;
             break;
