@@ -22,7 +22,7 @@ void sram_enable (void)
  */
 void sram_read (void)
 {
-    uint8_t *sram = 0x8000;
+    uint8_t *sram = (void *) 0x8000;
 
     if (memcmp (sram_magic, sram, 4) == 0)
     {
@@ -37,7 +37,7 @@ void sram_read (void)
  */
 void sram_write (void)
 {
-    uint8_t *sram = 0x8000;
+    uint8_t *sram = (void *) 0x8000;
 
     /* Offset 0x04: RNG */
     memcpy (sram, sram_magic, 4);
