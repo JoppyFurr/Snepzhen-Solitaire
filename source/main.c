@@ -235,13 +235,18 @@ void cursor_render (void)
 
     /* Cursor coordinates */
     cursor_x = (cursor_stack & 0x07) * 32 + 16;
-    if (cursor_stack > CURSOR_COLUMN_8)
+
+    if (cursor_stack == CURSOR_DRAGON_BUTTONS)
+    {
+        cursor_y = (cursor_depth * 16) + 16;
+    }
+    else if (cursor_stack > CURSOR_COLUMN_8)
     {
         cursor_y = 12;
     }
     else
     {
-        cursor_y = cursor_depth * 8 + 76;
+        cursor_y = (cursor_depth * 8) + 76;
     }
 
     /* Offset the cursor if we're holding a card */
@@ -304,10 +309,18 @@ void cursor_move (uint8_t direction)
             cursor_stack = (cursor_stack + (CURSOR_STACK_MAX - 1)) % CURSOR_STACK_MAX;
             cursor_depth = CURSOR_DEPTH_MAX;
 
-            /* Skip over the buttons if holding a card */
-            if (cursor_stack == CURSOR_DRAGON_BUTTONS && stack [HELD] [0] != 0xff)
+            if (cursor_stack == CURSOR_DRAGON_BUTTONS)
             {
-                cursor_stack--;
+                if (stack [HELD] [0] != 0xff)
+                {
+                    /* Skip over the buttons if holding a card */
+                    cursor_stack--;
+                }
+                else
+                {
+                    /* Start on the top button */
+                    cursor_depth = 0;
+                }
             }
             break;
 
@@ -316,15 +329,25 @@ void cursor_move (uint8_t direction)
             cursor_depth = CURSOR_DEPTH_MAX;
 
             /* Skip over the buttons if holding a card */
-            if (cursor_stack == CURSOR_DRAGON_BUTTONS && stack [HELD] [0] != 0xff)
+            if (cursor_stack == CURSOR_DRAGON_BUTTONS)
             {
-                cursor_stack++;
+                if (stack [HELD] [0] != 0xff)
+                {
+                    /* Skip over the buttons if holding a card */
+                    cursor_stack++;
+                }
+                else
+                {
+                    /* Start on the top button */
+                    cursor_depth = 0;
+                }
             }
             break;
 
         case PORT_A_KEY_UP:
-            if (cursor_stack <= CURSOR_COLUMN_8 &&
-                stack [HELD] [0] == 0xff && cursor_depth > 0)
+            if (cursor_depth > 0 &&
+                    ((cursor_stack == CURSOR_DRAGON_BUTTONS) ||
+                     (cursor_stack <= CURSOR_COLUMN_8 && stack [HELD] [0] == 0xff)))
             {
                 cursor_depth--;
             }
@@ -337,7 +360,11 @@ void cursor_move (uint8_t direction)
 
     /* Next, calculate the maximum depth for the column */
     stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
-    if (stack [stack_idx] [0] != 0xff)
+    if (cursor_stack == CURSOR_DRAGON_BUTTONS)
+    {
+        stack_max_depth = 2;
+    }
+    else if (stack [stack_idx] [0] != 0xff)
     {
         stack_max_depth = top_card (stack_idx);
     }
