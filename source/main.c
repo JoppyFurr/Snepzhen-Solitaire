@@ -760,6 +760,36 @@ void render_background (void)
 
 
 /*
+ * Animate a card sliding from one position to another.
+ */
+void card_slide (uint16_t start_x, uint16_t start_y,
+                 uint16_t end_x,   uint16_t end_y,
+                 uint8_t frames,   bool cursor_visible)
+{
+    uint16_t x;
+    uint16_t y;
+
+    for (uint8_t frame = 1; frame < frames; frame++)
+    {
+        /* Calculate next position */
+        x = (((start_x * 8) * (frames - frame)) +
+             ((end_x   * 8) * (         frame))) / frames / 8;
+        y = (((start_y * 8) * (frames - frame)) +
+             ((end_y   * 8) * (         frame))) / frames / 8;
+
+        cursor_render_xy (x, y, cursor_visible);
+
+        /* Write to hardware */
+        SMS_waitForVBlank ();
+        SMS_copySpritestoSAT ();
+    }
+
+    SMS_initSprites ();
+    SMS_copySpritestoSAT ();
+}
+
+
+/*
  * Deal a new game.
  */
 void deal (void)
@@ -771,9 +801,9 @@ void deal (void)
     for (i = 0; i < 16; i++)
     {
         stack [i] [0] = 0xff;
-
     }
     memset (stack_changed, true, sizeof (stack_changed));
+    render_background ();
 
     /* Shuffle the deck */
     for (i = 39; i >= 1; i--)
@@ -787,16 +817,26 @@ void deal (void)
 
     /* Place the cards */
     i = 0;
+    stack [HELD] [1] = 0xff;
     for (uint8_t depth = 0; depth < 5; depth++)
     {
         for (uint8_t col = 0; col < 8; col++)
         {
+            uint8_t dest_x;
+            uint8_t dest_y;
+
+            cursor_sd_to_xy (col, depth, &dest_x, &dest_y);
+
+            /* Animate the card being dealt */
+            stack [HELD] [0] = deck [i];
+            card_slide (dest_x, 192, dest_x, dest_y, 8, false);
+            stack [HELD] [0] = 0xff;
+
+            /* Store the card in its new position */
             stack [col] [depth] = deck [i++];
             stack [col] [depth + 1] = 0xff;
             stack_changed [col] = true;
 
-            /* Poorly animated deal */
-            SMS_waitForVBlank ();
             render_background ();
         }
     }
@@ -844,7 +884,6 @@ void main (void)
     sram_read ();
 
     deal ();
-    render_background ();
 
     /* Main loop */
     while (true)
