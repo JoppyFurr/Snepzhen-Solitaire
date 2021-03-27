@@ -622,46 +622,6 @@ void cursor_place (void)
 }
 
 
-
-/*
- * Deal a new game.
- */
-void deal (void)
-{
-    uint8_t i;
-
-    rng_seed ();
-
-    /* Shuffle the deck */
-    for (i = 39; i >= 1; i--)
-    {
-        uint8_t temp = deck [i];
-        uint8_t swap_i = rand () % (i + 1);
-
-        deck [i] = deck [swap_i];
-        deck [swap_i] = temp;
-    }
-
-    /* Place the cards */
-    i = 0;
-    for (uint8_t col = 0; col < 8; col++)
-    {
-        for (uint8_t depth = 0; depth < 5; depth++)
-        {
-            stack [col] [depth] = deck [i++];
-        }
-
-        stack [col] [5] = 0xff;
-    }
-
-    memset (stack_changed, true, sizeof (stack_changed));
-
-    cursor_stack = CURSOR_COLUMN_1;
-    cursor_depth = CURSOR_DEPTH_MAX;
-    cursor_move (PORT_A_KEY_DOWN);
-}
-
-
 /*
  * Render one card to the background.
  */
@@ -774,6 +734,54 @@ void render_background (void)
     }
 
     memset (stack_changed, false, sizeof (stack_changed));
+}
+
+
+/*
+ * Deal a new game.
+ */
+void deal (void)
+{
+    uint8_t i;
+
+    rng_seed ();
+
+    for (i = 0; i < 16; i++)
+    {
+        stack [i] [0] = 0xff;
+
+    }
+    memset (stack_changed, true, sizeof (stack_changed));
+
+    /* Shuffle the deck */
+    for (i = 39; i >= 1; i--)
+    {
+        uint8_t temp = deck [i];
+        uint8_t swap_i = rand () % (i + 1);
+
+        deck [i] = deck [swap_i];
+        deck [swap_i] = temp;
+    }
+
+    /* Place the cards */
+    i = 0;
+    for (uint8_t depth = 0; depth < 5; depth++)
+    {
+        for (uint8_t col = 0; col < 8; col++)
+        {
+            stack [col] [depth] = deck [i++];
+            stack [col] [depth + 1] = 0xff;
+            stack_changed [col] = true;
+
+            /* Poorly animated deal */
+            SMS_waitForVBlank ();
+            render_background ();
+        }
+    }
+
+    cursor_stack = CURSOR_COLUMN_1;
+    cursor_depth = CURSOR_DEPTH_MAX;
+    cursor_move (PORT_A_KEY_DOWN);
 }
 
 
