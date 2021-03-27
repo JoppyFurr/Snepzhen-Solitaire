@@ -11,6 +11,7 @@
 
 #include "SMSlib.h"
 
+#include "sram.h"
 #include "rng.h"
 #include "patterns.c"
 
@@ -636,6 +637,9 @@ void main (void)
     SMS_copySpritestoSAT ();
 
     SMS_displayOn ();
+
+    sram_enable ();
+    sram_read ();
 
     deal ();
     render_background ();
