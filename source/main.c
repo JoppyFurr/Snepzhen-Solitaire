@@ -435,7 +435,6 @@ void cursor_move (uint8_t direction)
 
 /*
  * Pick up the selected card.
- * TODO: Only allow picking from a dragon slot when it contains exactly one card.
  */
 void cursor_pick (void)
 {
@@ -475,6 +474,15 @@ void cursor_pick (void)
             }
 
             previous_card = card;
+        }
+    }
+
+    /* Once a stack of dragons is stored, it stays */
+    if (cursor_stack >= CURSOR_DRAGON_SLOT_1 && cursor_stack <= CURSOR_DRAGON_SLOT_3)
+    {
+        if (cursor_depth > 0)
+        {
+            return;
         }
     }
 
