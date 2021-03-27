@@ -786,6 +786,20 @@ void deal (void)
 
 
 /*
+ * Fill the name table with tile-zero.
+ */
+void clear_background (void)
+{
+    uint16_t blank_line [32] = { 0 };
+
+    for (uint8_t row = 0; row < 24; row++)
+    {
+        SMS_loadTileMapArea (0, row, &blank_line, 32, 1);
+    }
+}
+
+
+/*
  * Entry point.
  */
 void main (void)
@@ -796,6 +810,7 @@ void main (void)
     SMS_setBackdropColor (0);
 
     SMS_loadTiles (patterns, 0, sizeof (patterns));
+    clear_background ();
 
     SMS_useFirstHalfTilesforSprites (true);
     SMS_initSprites ();
