@@ -655,7 +655,31 @@ void main (void)
         {
             if (stack [HELD] [0] == 0xff)
             {
-                /* TODO: Move card to foundation */
+                uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
+                uint8_t _cursor_stack = cursor_stack;
+
+                if (cursor_depth == top_card (stack_idx))
+                {
+                    cursor_pick ();
+
+                    /* Try placing in each slot */
+                    for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
+                    {
+                        cursor_stack = i;
+                        cursor_depth = CURSOR_DEPTH_MAX;
+                        cursor_move (PORT_A_KEY_DOWN);
+                        cursor_place ();
+                    }
+
+                    /* Restore cursor position, returning the card if we still have it */
+                    cursor_stack = _cursor_stack;
+                    cursor_depth = CURSOR_DEPTH_MAX;
+                    cursor_move (PORT_A_KEY_DOWN);
+                    if (stack [HELD] [0] != 0xff)
+                    {
+                        cursor_place ();
+                    }
+                }
             }
             else
             {
