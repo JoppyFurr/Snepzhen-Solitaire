@@ -129,7 +129,7 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         {
             /* Snep card */
             card_tiles [0]  = CORNER_SNEP;
-            card_tiles [23] = CORNER_SNEP | TILE_FLIPPED_X | TILE_FLIPPED_Y;
+            card_tiles [23] = CORNER_SNEP + 2;
 
             for (uint8_t i = 0; i < 16; i++)
             {
@@ -141,8 +141,6 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
             /* Print card */
             card_tiles [0]  = CORNER_PRINTS + (value * 3);
             card_tiles [1]  = CORNER_PRINTS + (value * 3) + 2;
-            card_tiles [22] = CORNER_PRINTS + (value * 3) + 2 | TILE_FLIPPED_X | TILE_FLIPPED_Y;
-            card_tiles [23] = CORNER_PRINTS + (value * 3) | TILE_FLIPPED_X | TILE_FLIPPED_Y;
 
             tile = ARTWORK_PRINTS + value * 4;
             card_tiles [ 9] = tile;
@@ -157,9 +155,8 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         uint8_t colour = card >> 4;
 
         /* Card corners */
-        tile = CORNER_NUMBERS + value * 9 + colour * 3;
+        tile = CORNER_NUMBERS + value * 6 + colour * 2;
         card_tiles [ 0] = tile;
-        card_tiles [23] = tile | TILE_FLIPPED_X | TILE_FLIPPED_Y;
 
         /* Chinese numbers */
         tile = ARTWORK_NUMBERS + value * 12 + colour * 4;

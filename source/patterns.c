@@ -5,12 +5,12 @@
 #define CURSOR_WHITE      9
 #define BLANK_CARD       13
 #define CORNER_NUMBERS   24
-#define CORNER_PRINTS   105
-#define CORNER_SNEP     114
-#define ARTWORK_NUMBERS 116
-#define ARTWORK_PRINTS  224
-#define ARTWORK_SNEP    236
-#define OUTLINE_CARD    252
+#define CORNER_PRINTS    78
+#define CORNER_SNEP      87
+#define ARTWORK_NUMBERS  90
+#define ARTWORK_PRINTS  198
+#define ARTWORK_SNEP    210
+#define OUTLINE_CARD    226
 
 /* Patterns */
 const uint32_t patterns [] = {
@@ -110,27 +110,18 @@ const uint32_t patterns [] = {
     /* One (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0d,     0x00003f19,
     0x00003f1d,     0x00003f1d,     0x00003f18,     0x00003f1f,
-    /* One (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* One (red) on-felt */
     0x00000700,     0x00000f07,     0x00021d0d,     0x00063919,
     0x00023d1d,     0x00023d1d,     0x00073818,     0x00003f1f,
     /* One (red) on-card */
     0x00003f18,     0x00003f17,     0x00023d0d,     0x00063919,
     0x00023d1d,     0x00023d1d,     0x00073818,     0x00003f1f,
-    /* One (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* One (green) on-felt */
     0x00000700,     0x00000f07,     0x00021d0f,     0x0006391f,
     0x00023d1f,     0x00023d1f,     0x0007381f,     0x00003f1f,
     /* One (green) on-card */
     0x00003f18,     0x00003f17,     0x00023d0f,     0x0006391f,
     0x00023d1f,     0x00023d1f,     0x0007381f,     0x00003f1f,
-    /* One (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Two (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f09,     0x00003f1e,
@@ -138,27 +129,18 @@ const uint32_t patterns [] = {
     /* Two (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f09,     0x00003f1e,
     0x00003f18,     0x00003f1b,     0x00003f18,     0x00003f1f,
-    /* Two (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Two (red) on-felt */
     0x00000700,     0x00000f07,     0x00061909,     0x00013e1e,
     0x00073818,     0x00043b1b,     0x00073818,     0x00003f1f,
     /* Two (red) on-card */
     0x00003f18,     0x00003f17,     0x00063909,     0x00013e1e,
     0x00073818,     0x00043b1b,     0x00073818,     0x00003f1f,
-    /* Two (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Two (green) on-felt */
     0x00000700,     0x00000f07,     0x0006190f,     0x00013e1f,
     0x0007381f,     0x00043b1f,     0x0007381f,     0x00003f1f,
     /* Two (green) on-card */
     0x00003f18,     0x00003f17,     0x0006390f,     0x00013e1f,
     0x0007381f,     0x00043b1f,     0x0007381f,     0x00003f1f,
-    /* Two (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Three (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1e,
@@ -166,27 +148,18 @@ const uint32_t patterns [] = {
     /* Three (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1e,
     0x00003f1c,     0x00003f1e,     0x00003f18,     0x00003f1f,
-    /* Three (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Three (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00013e1e,
     0x00033c1c,     0x00013e1e,     0x00073818,     0x00003f1f,
     /* Three (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00013e1e,
     0x00033c1c,     0x00013e1e,     0x00073818,     0x00003f1f,
-    /* Three (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Three (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00013e1f,
     0x00033c1f,     0x00013e1f,     0x0007381f,     0x00003f1f,
     /* Three (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00013e1f,
     0x00033c1f,     0x00013e1f,     0x0007381f,     0x00003f1f,
-    /* Three (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Four (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f0a,     0x00003f1a,
@@ -194,27 +167,18 @@ const uint32_t patterns [] = {
     /* Four (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0a,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* Four (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Four (red) on-felt */
     0x00000700,     0x00000f07,     0x00051a0a,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
     /* Four (red) on-card */
     0x00003f18,     0x00003f17,     0x00053a0a,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* Four (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Four (green) on-felt */
     0x00000700,     0x00000f07,     0x00051a0f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
     /* Four (green) on-card */
     0x00003f18,     0x00003f17,     0x00053a0f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
-    /* Four (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Five (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1b,
@@ -222,27 +186,18 @@ const uint32_t patterns [] = {
     /* Five (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1b,
     0x00003f18,     0x00003f1e,     0x00003f19,     0x00003f1f,
-    /* Five (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Five (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00043b1b,
     0x00073818,     0x00013e1e,     0x00063919,     0x00003f1f,
     /* Five (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00043b1b,
     0x00073818,     0x00013e1e,     0x00063919,     0x00003f1f,
-    /* Five (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Five (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00043b1f,
     0x0007381f,     0x00013e1f,     0x0006391f,     0x00003f1f,
     /* Five (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00043b1f,
     0x0007381f,     0x00013e1f,     0x0006391f,     0x00003f1f,
-    /* Five (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Six (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f0c,     0x00003f1b,
@@ -250,27 +205,18 @@ const uint32_t patterns [] = {
     /* Six (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f0c,     0x00003f1b,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* Six (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Six (red) on-felt */
     0x00000700,     0x00000f07,     0x00031c0c,     0x00043b1b,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
     /* Six (red) on-card */
     0x00003f18,     0x00003f17,     0x00033c0c,     0x00043b1b,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* Six (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Six (green) on-felt */
     0x00000700,     0x00000f07,     0x00031c0f,     0x00043b1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
     /* Six (green) on-card */
     0x00003f18,     0x00003f17,     0x00033c0f,     0x00043b1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
-    /* Six (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Seven (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1e,
@@ -278,27 +224,18 @@ const uint32_t patterns [] = {
     /* Seven (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1e,
     0x00003f1d,     0x00003f1d,     0x00003f1d,     0x00003f1f,
-    /* Seven (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Seven (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00013e1e,
     0x00023d1d,     0x00023d1d,     0x00023d1d,     0x00003f1f,
     /* Seven (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00013e1e,
     0x00023d1d,     0x00023d1d,     0x00023d1d,     0x00003f1f,
-    /* Seven (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Seven (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00013e1f,
     0x00023d1f,     0x00023d1f,     0x00023d1f,     0x00003f1f,
     /* Seven (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00013e1f,
     0x00023d1f,     0x00023d1f,     0x00023d1f,     0x00003f1f,
-    /* Seven (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Eight (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1a,
@@ -306,27 +243,18 @@ const uint32_t patterns [] = {
     /* Eight (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1a,
     0x00003f18,     0x00003f1a,     0x00003f18,     0x00003f1f,
-    /* Eight (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Eight (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00053a1a,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
     /* Eight (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00053a1a,
     0x00073818,     0x00053a1a,     0x00073818,     0x00003f1f,
-    /* Eight (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Eight (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00053a1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
     /* Eight (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00053a1f,
     0x0007381f,     0x00053a1f,     0x0007381f,     0x00003f1f,
-    /* Eight (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /* Nine (black) on-felt */
     0x00000700,     0x00000f07,     0x00001f08,     0x00003f1a,
@@ -334,30 +262,21 @@ const uint32_t patterns [] = {
     /* Nine (black) on-card */
     0x00003f18,     0x00003f17,     0x00003f08,     0x00003f1a,
     0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1f,
-    /* Nine (black) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Nine (red) on-felt */
     0x00000700,     0x00000f07,     0x00071808,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
     /* Nine (red) on-card */
     0x00003f18,     0x00003f17,     0x00073808,     0x00053a1a,
     0x00073818,     0x00013e1e,     0x00013e1e,     0x00003f1f,
-    /* Nine (red) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
     /* Nine (green) on-felt */
     0x00000700,     0x00000f07,     0x0007180f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
     /* Nine (green) on-card */
     0x00003f18,     0x00003f17,     0x0007380f,     0x00053a1f,
     0x0007381f,     0x00013e1f,     0x00013e1f,     0x00003f1f,
-    /* Nine (green) on-felt flipped */
-    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
-    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /*
-     * 105 - Card-corner prints.
+     * 78 - Card-corner prints.
      */
 
     /* Claw (black) on-felt left */
@@ -391,7 +310,7 @@ const uint32_t patterns [] = {
     0x00c03fff,     0x0000ffff,     0x00807fff,     0x0000ffff,
 
     /*
-     * 114 - Card-corner snep.
+     * 87 - Card-corner snep.
      */
 
     /* Snep on-felt*/
@@ -400,9 +319,12 @@ const uint32_t patterns [] = {
     /* Snep on-card*/
     0x00003f18,     0x00003f17,     0x00003f0f,     0x00063f1f,
     0x000f3f19,     0x000f3f19,     0x000f3f19,     0x000f3f19,
+    /* Snep on-felt flipped*/
+    0x0000fcf8,     0x0000fcf8,     0x0000fcf8,     0x0000fcf8,
+    0x0000fcf8,     0x0000f8f0,     0x0000f0e0,     0x0000e000,
 
     /*
-     * 116 - Chinese characters are Gnu Unifont at 16 × 16 pixels.
+     * 90 - Chinese characters are Gnu Unifont at 16 × 16 pixels.
      */
 
     /* One (black) top-left */
@@ -739,7 +661,7 @@ const uint32_t patterns [] = {
     0x0022ddff,     0x0022ddff,     0x001ee1ff,     0x0000ffff,
 
     /*
-     * 224 - Artwork for prints.
+     * 198 - Artwork for prints.
      */
 
     /* Claw top-left */
@@ -782,7 +704,7 @@ const uint32_t patterns [] = {
     0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
 
     /*
-     * Snep artwork 4×4 (TODO).
+     * 210 - Snep artwork 4×4 (TODO).
      */
 
     /* Snep artwork (0, 0) */
@@ -835,7 +757,7 @@ const uint32_t patterns [] = {
     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,     0x00f0fc98,
 
     /*
-     * 252 - Empty card outline.
+     * 226 - Empty card outline.
      */
 
     /* Outline top-left */
