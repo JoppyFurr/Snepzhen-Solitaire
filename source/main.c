@@ -865,6 +865,64 @@ void clear_background (void)
 
 
 /*
+ * Move the currently-selected card to the foundation if possible.
+ */
+void move_auto (void)
+{
+    uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
+    uint8_t _cursor_stack = cursor_stack;
+
+    if (cursor_depth == top_card (stack_idx))
+    {
+        cursor_pick ();
+
+        /* Try placing in each slot */
+        for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [STACK_HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
+        {
+            cursor_stack = i;
+            cursor_depth = CURSOR_DEPTH_MAX;
+            cursor_move (PORT_A_KEY_DOWN);
+            cursor_place ();
+        }
+
+        /* Restore cursor position, returning the card if we still have it */
+        cursor_stack = _cursor_stack;
+        cursor_depth = CURSOR_DEPTH_MAX;
+        cursor_move (PORT_A_KEY_DOWN);
+        if (stack [STACK_HELD] [0] != 0xff)
+        {
+            cursor_place ();
+        }
+    }
+}
+
+
+/*
+ * Cancel the current card movement, returning to where it came from.
+ */
+void move_cancel (void)
+{
+    uint8_t from_x;
+    uint8_t from_y;
+    uint8_t to_x;
+    uint8_t to_y;
+
+    /* Animation start-point */
+    cursor_sd_to_xy (cursor_stack, cursor_depth, &from_x, &from_y);
+
+    cursor_stack = came_from;
+    cursor_depth = CURSOR_DEPTH_MAX;
+    cursor_move (PORT_A_KEY_DOWN);
+
+    /* Animation end-point*/
+    cursor_sd_to_xy (cursor_stack, cursor_depth + 1, &to_x, &to_y);
+
+    card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
+    cursor_place ();
+}
+
+
+/*
  * Play one game.
  */
 void game (void)
@@ -908,61 +966,19 @@ void game (void)
         {
             if (stack [STACK_HELD] [0] == 0xff)
             {
-                uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
-                uint8_t _cursor_stack = cursor_stack;
-
-                if (cursor_depth == top_card (stack_idx))
-                {
-                    cursor_pick ();
-
-                    /* Try placing in each slot */
-                    for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [STACK_HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
-                    {
-                        cursor_stack = i;
-                        cursor_depth = CURSOR_DEPTH_MAX;
-                        cursor_move (PORT_A_KEY_DOWN);
-                        cursor_place ();
-                    }
-
-                    /* Restore cursor position, returning the card if we still have it */
-                    cursor_stack = _cursor_stack;
-                    cursor_depth = CURSOR_DEPTH_MAX;
-                    cursor_move (PORT_A_KEY_DOWN);
-                    if (stack [STACK_HELD] [0] != 0xff)
-                    {
-                        cursor_place ();
-                    }
-                }
+                move_auto ();
             }
             else
             {
-                /* Cancel the currently held cards */
-                uint8_t from_x;
-                uint8_t from_y;
-                uint8_t to_x;
-                uint8_t to_y;
-
-                /* Animation start-point */
-                cursor_sd_to_xy (cursor_stack, cursor_depth, &from_x, &from_y);
-
-                cursor_stack = came_from;
-                cursor_depth = CURSOR_DEPTH_MAX;
-                cursor_move (PORT_A_KEY_DOWN);
-
-                /* Animation */
-                cursor_sd_to_xy (cursor_stack, cursor_depth + 1, &to_x, &to_y);
-                card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
-
-                cursor_place ();
+                move_cancel ();
             }
         }
 
         keys_previous = keys;
 
-        /* Render */
+        /* Update H/W during vblank */
         SMS_waitForVBlank ();
 
-        /* Update cards in background layer */
         render_background ();
 
         if (sprite_update)
