@@ -15,6 +15,12 @@
 #include "rng.h"
 #include "patterns.c"
 
+/* Constants */
+#define PORT_A_KEY_DPAD     (PORT_A_KEY_UP | PORT_A_KEY_DOWN | PORT_A_KEY_LEFT | PORT_A_KEY_RIGHT)
+#define CARD_TYPE_MASK      0x30
+#define CARD_VALUE_MASK     0x0f
+#define STACK_HELD          15
+
 /* Palette */
 const uint8_t palette [16] = {
     0x04,   /* 0 - (table) Dark green */
@@ -38,8 +44,6 @@ bool sprite_update = false;
  *         3  : Snep
  *  0xff: End of stack.
  */
-#define TYPE_BITS   0x30
-#define VALUE_BITS  0x0f
 
 uint8_t deck [] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -49,7 +53,6 @@ uint8_t deck [] = {
     0x32, 0x32, 0x32, 0x33
 };
 
-#define HELD 15
 
 uint8_t stack [16] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff },
@@ -210,7 +213,7 @@ void stack_dragons (void)
  */
 void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
 {
-    uint8_t value = card & VALUE_BITS;
+    uint8_t value = card & CARD_VALUE_MASK;
     uint8_t tile;
 
     uint16_t card_tiles [] = {
@@ -222,7 +225,7 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         BLANK_CARD +  8, BLANK_CARD +  9, BLANK_CARD +  9, BLANK_CARD + 10
     };
 
-    if ((card & TYPE_BITS) == 0x30)
+    if ((card & CARD_TYPE_MASK) == 0x30)
     {
         if (value == 3)
         {
@@ -294,17 +297,17 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
     }
 
     /* Render held cards as sprites */
-    if (stack [HELD] [0] != 0xff)
+    if (stack [STACK_HELD] [0] != 0xff)
     {
         uint8_t card_x = cursor_x - 16;
-        uint8_t top = top_card (HELD);
+        uint8_t top = top_card (STACK_HELD);
 
         for (uint8_t i = top; i != 0xff; i--)
         {
             uint8_t card_y = cursor_y + (8 * i) - 4;
             uint16_t card_tiles [24];
 
-            render_card_tiles (card_tiles, stack [HELD] [i], i > 0);
+            render_card_tiles (card_tiles, stack [STACK_HELD] [i], i > 0);
 
             for (uint8_t y = 0; y < 6; y++)
             {
@@ -360,7 +363,7 @@ void cursor_render (void)
     cursor_sd_to_xy (cursor_stack, cursor_depth, &cursor_x, &cursor_y);
 
     /* Offset the cursor if we're holding a card */
-    if (stack [HELD] [0] != 0xff)
+    if (stack [STACK_HELD] [0] != 0xff)
     {
         cursor_x += 2;
         cursor_y += 12;
@@ -387,7 +390,7 @@ void cursor_move (uint8_t direction)
 
             if (cursor_stack == CURSOR_DRAGON_BUTTONS)
             {
-                if (stack [HELD] [0] != 0xff)
+                if (stack [STACK_HELD] [0] != 0xff)
                 {
                     /* Skip over the buttons if holding a card */
                     cursor_stack--;
@@ -407,7 +410,7 @@ void cursor_move (uint8_t direction)
             /* Skip over the buttons if holding a card */
             if (cursor_stack == CURSOR_DRAGON_BUTTONS)
             {
-                if (stack [HELD] [0] != 0xff)
+                if (stack [STACK_HELD] [0] != 0xff)
                 {
                     /* Skip over the buttons if holding a card */
                     cursor_stack++;
@@ -423,7 +426,7 @@ void cursor_move (uint8_t direction)
         case PORT_A_KEY_UP:
             if (cursor_depth > 0 &&
                     ((cursor_stack == CURSOR_DRAGON_BUTTONS) ||
-                     (cursor_stack <= CURSOR_COLUMN_8 && stack [HELD] [0] == 0xff)))
+                     (cursor_stack <= CURSOR_COLUMN_8 && stack [STACK_HELD] [0] == 0xff)))
             {
                 cursor_depth--;
             }
@@ -472,7 +475,7 @@ void cursor_pick (void)
             uint8_t card = stack [stack_idx] [cursor_depth + i];
 
             /* Special cards cannot be stacked */
-            if ((card & TYPE_BITS) == 0x30)
+            if ((card & CARD_TYPE_MASK) == 0x30)
             {
                 return;
             }
@@ -482,13 +485,13 @@ void cursor_pick (void)
                 if (cursor_stack <= CURSOR_COLUMN_8)
                 {
                     /* Colours must alternate */
-                    if ((card & TYPE_BITS) == (previous_card & TYPE_BITS))
+                    if ((card & CARD_TYPE_MASK) == (previous_card & CARD_TYPE_MASK))
                     {
                         return;
                     }
 
                     /* Value must decrease */
-                    if ((card & VALUE_BITS) != (previous_card & VALUE_BITS) - 1)
+                    if ((card & CARD_VALUE_MASK) != (previous_card & CARD_VALUE_MASK) - 1)
                     {
                         return;
                     }
@@ -511,10 +514,10 @@ void cursor_pick (void)
     /* Move the selected stack into the hand */
     for (i = 0; stack [stack_idx] [cursor_depth + i] != 0xff; i++)
     {
-        stack [HELD] [i] = stack [stack_idx] [cursor_depth + i];
+        stack [STACK_HELD] [i] = stack [stack_idx] [cursor_depth + i];
         stack [stack_idx] [cursor_depth + i] = 0xff;
     }
-    stack [HELD] [i] = 0xff;
+    stack [STACK_HELD] [i] = 0xff;
     stack_changed [stack_idx] = true;
 
     came_from = cursor_stack;
@@ -543,20 +546,20 @@ void cursor_place (void)
             if (stack_card != 0xff)
             {
                 /* Special cards cannot be stacked */
-                if (((stack_card       & 0x30) == 0x30) ||
-                    ((stack [HELD] [0] & 0x30) == 0x30))
+                if (((stack_card             & 0x30) == 0x30) ||
+                    ((stack [STACK_HELD] [0] & 0x30) == 0x30))
                 {
                     return;
                 }
 
                 /* Colours must alternate */
-                if ((stack_card & 0x30) == (stack [HELD] [0] & 0x30))
+                if ((stack_card & 0x30) == (stack [STACK_HELD] [0] & 0x30))
                 {
                     return;
                 }
 
                 /* Value must decrease */
-                if ((stack_card & VALUE_BITS) != (stack [HELD] [0] & VALUE_BITS) + 1)
+                if ((stack_card & CARD_VALUE_MASK) != (stack [STACK_HELD] [0] & CARD_VALUE_MASK) + 1)
                 {
                     return;
                 }
@@ -565,7 +568,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_DRAGON_SLOT_3)
         {
             /* Only single cards may be placed in the dragon slots */
-            if ((stack_card != 0xff) || (stack [HELD] [1] != 0xff))
+            if ((stack_card != 0xff) || (stack [STACK_HELD] [1] != 0xff))
             {
                 return;
             }
@@ -578,7 +581,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_FOUNDATION_SNEP)
         {
             /* Only the snep card may be placed in the snep card slot */
-            if (stack [HELD] [0] != 0x33)
+            if (stack [STACK_HELD] [0] != 0x33)
             {
                 return;
             }
@@ -586,7 +589,7 @@ void cursor_place (void)
         else if (cursor_stack <= CURSOR_FOUNDATION_3)
         {
             /* No special cards, and only one card at a time */
-            if ((stack [HELD] [0] & TYPE_BITS) == 0x30 || stack [HELD] [1] != 0xff)
+            if ((stack [STACK_HELD] [0] & CARD_TYPE_MASK) == 0x30 || stack [STACK_HELD] [1] != 0xff)
             {
                 return;
             }
@@ -594,7 +597,7 @@ void cursor_place (void)
             /* Only a '1' can be placed on an empty slot */
             if (stack [stack_idx] [0] == 0xff)
             {
-                if ((stack [HELD] [0] & VALUE_BITS) != 0)
+                if ((stack [STACK_HELD] [0] & CARD_VALUE_MASK) != 0)
                 {
                     return;
                 }
@@ -602,12 +605,12 @@ void cursor_place (void)
             else
             {
                 /* Cards in a foundation must all be the same colour */
-                if ((stack_card & TYPE_BITS) != (stack [HELD] [0] & TYPE_BITS))
+                if ((stack_card & CARD_TYPE_MASK) != (stack [STACK_HELD] [0] & CARD_TYPE_MASK))
                 {
                     return;
                 }
                 /* Cards in a foundation must be in increasing order */
-                if ((stack_card & VALUE_BITS) != (stack [HELD] [0] & VALUE_BITS) - 1)
+                if ((stack_card & CARD_VALUE_MASK) != (stack [STACK_HELD] [0] & CARD_VALUE_MASK) - 1)
                 {
                     return;
                 }
@@ -628,10 +631,10 @@ void cursor_place (void)
     }
 
     /* Move the cards from the hand */
-    for (i = 0; stack [HELD] [i] != 0xff; i++)
+    for (i = 0; stack [STACK_HELD] [i] != 0xff; i++)
     {
-        stack [stack_idx] [cursor_depth + i] = stack [HELD] [i];
-        stack [HELD] [i] = 0xff;
+        stack [stack_idx] [cursor_depth + i] = stack [STACK_HELD] [i];
+        stack [STACK_HELD] [i] = 0xff;
     }
     stack [stack_idx] [cursor_depth + i] = 0xff;
     stack_changed [stack_idx] = true;
@@ -817,7 +820,7 @@ void deal (void)
 
     /* Place the cards */
     i = 0;
-    stack [HELD] [1] = 0xff;
+    stack [STACK_HELD] [1] = 0xff;
     for (uint8_t depth = 0; depth < 5; depth++)
     {
         for (uint8_t col = 0; col < 8; col++)
@@ -828,9 +831,9 @@ void deal (void)
             cursor_sd_to_xy (col, depth, &dest_x, &dest_y);
 
             /* Animate the card being dealt */
-            stack [HELD] [0] = deck [i];
+            stack [STACK_HELD] [0] = deck [i];
             card_slide (dest_x, 192, dest_x, dest_y, 8, false);
-            stack [HELD] [0] = 0xff;
+            stack [STACK_HELD] [0] = 0xff;
 
             /* Store the card in its new position */
             stack [col] [depth] = deck [i++];
@@ -862,41 +865,27 @@ void clear_background (void)
 
 
 /*
- * Entry point.
+ * Play one game.
  */
-void main (void)
+void game (void)
 {
-    /* Setup */
-    SMS_loadBGPalette (palette);
-    SMS_loadSpritePalette (palette);
-    SMS_setBackdropColor (0);
+    bool playing = true;
 
-    SMS_loadTiles (patterns, 0, sizeof (patterns));
-    clear_background ();
-
-    SMS_useFirstHalfTilesforSprites (true);
-    SMS_initSprites ();
-    SMS_copySpritestoSAT ();
-
-    SMS_displayOn ();
-
-    sram_enable ();
-    sram_read ();
-
-    deal ();
-
-    /* Main loop */
-    while (true)
+    while (playing)
     {
         static uint16_t keys_previous = 0;
         uint16_t keys = SMS_getKeysStatus ();
         uint16_t keys_pressed = (keys & ~keys_previous);
 
         /* Logic */
-        cursor_move (keys_pressed);
+        if (keys_pressed & PORT_A_KEY_DPAD)
+        {
+            cursor_move (keys_pressed);
+        }
+
         if (keys_pressed & PORT_A_KEY_1)
         {
-            if (stack [HELD] [0] == 0xff)
+            if (stack [STACK_HELD] [0] == 0xff)
             {
                 if (cursor_stack == CURSOR_DRAGON_BUTTONS)
                 {
@@ -917,7 +906,7 @@ void main (void)
         }
         else if (keys_pressed & PORT_A_KEY_2)
         {
-            if (stack [HELD] [0] == 0xff)
+            if (stack [STACK_HELD] [0] == 0xff)
             {
                 uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
                 uint8_t _cursor_stack = cursor_stack;
@@ -927,7 +916,7 @@ void main (void)
                     cursor_pick ();
 
                     /* Try placing in each slot */
-                    for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
+                    for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [STACK_HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
                     {
                         cursor_stack = i;
                         cursor_depth = CURSOR_DEPTH_MAX;
@@ -939,7 +928,7 @@ void main (void)
                     cursor_stack = _cursor_stack;
                     cursor_depth = CURSOR_DEPTH_MAX;
                     cursor_move (PORT_A_KEY_DOWN);
-                    if (stack [HELD] [0] != 0xff)
+                    if (stack [STACK_HELD] [0] != 0xff)
                     {
                         cursor_place ();
                     }
@@ -981,6 +970,37 @@ void main (void)
             SMS_copySpritestoSAT ();
             sprite_update = false;
         }
+    }
+}
+
+
+/*
+ * Entry point.
+ */
+void main (void)
+{
+    /* Setup */
+    SMS_loadBGPalette (palette);
+    SMS_loadSpritePalette (palette);
+    SMS_setBackdropColor (0);
+
+    SMS_loadTiles (patterns, 0, sizeof (patterns));
+    clear_background ();
+
+    SMS_useFirstHalfTilesforSprites (true);
+    SMS_initSprites ();
+    SMS_copySpritestoSAT ();
+
+    SMS_displayOn ();
+
+    sram_enable ();
+    sram_read ();
+
+    /* Main loop */
+    while (true)
+    {
+        deal ();
+        game ();
     }
 }
 
