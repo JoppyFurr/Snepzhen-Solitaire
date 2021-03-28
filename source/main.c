@@ -155,60 +155,6 @@ void check_dragons (void)
 
 
 /*
- * Stack four dragon cards into a slot.
- */
-void stack_dragons (void)
-{
-    uint8_t dragon_idx = cursor_depth;
-    uint8_t card_match = 0x30 + dragon_idx;
-    uint8_t dest_idx = 0xff;
-
-    /* First, see if we already have a slot */
-    for (uint8_t stack_idx = CURSOR_DRAGON_SLOT_1; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
-    {
-        if (stack [stack_idx] [0] == card_match)
-        {
-            dest_idx = stack_idx;
-            break;
-        }
-    }
-
-    /* If not, choose the first empty slot */
-    if (dest_idx == 0xff)
-    {
-        for (uint8_t stack_idx = CURSOR_DRAGON_SLOT_1; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
-        {
-            if (stack [stack_idx] [0] == 0xff)
-            {
-                dest_idx = stack_idx;
-                break;
-            }
-        }
-    }
-
-    /* Remove the dragons from wherever they may be */
-    for (uint8_t stack_idx = 0; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
-    {
-        uint8_t top = top_card (stack_idx);
-
-        if (stack [stack_idx] [top] == card_match)
-        {
-            stack [stack_idx] [top] = 0xff;
-            stack_changed [stack_idx] = true;
-        }
-    }
-
-    /* Place all four dragons into the destination slot */
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        stack [dest_idx] [i] = card_match;
-    }
-    stack [dest_idx] [4] = 0xff;
-    stack_changed [dest_idx] = true;
-}
-
-
-/*
  * Render a single card to an array of tile indexes.
  */
 void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
@@ -861,6 +807,86 @@ void clear_background (void)
     {
         SMS_loadTileMapArea (0, row, &blank_line, 32, 1);
     }
+}
+
+
+/*
+ * Stack four dragon cards into a slot.
+ */
+void stack_dragons (void)
+{
+    uint8_t from_x;
+    uint8_t from_y;
+    uint8_t to_x;
+    uint8_t to_y;
+
+    uint8_t dragon_idx = cursor_depth;
+    uint8_t card_match = 0x30 + dragon_idx;
+    uint8_t dest_idx = 0xff;
+
+    /* First, see if we already have a slot */
+    for (uint8_t stack_idx = CURSOR_DRAGON_SLOT_1; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
+    {
+        if (stack [stack_idx] [0] == card_match)
+        {
+            dest_idx = stack_idx;
+            break;
+        }
+    }
+
+    /* If not, choose the first empty slot */
+    if (dest_idx == 0xff)
+    {
+        for (uint8_t stack_idx = CURSOR_DRAGON_SLOT_1; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
+        {
+            if (stack [stack_idx] [0] == 0xff)
+            {
+                dest_idx = stack_idx;
+                break;
+            }
+        }
+    }
+
+    /* Animation end-point */
+    cursor_sd_to_xy (dest_idx, 0, &to_x, &to_y);
+    stack [STACK_HELD] [0] = card_match;
+    stack [STACK_HELD] [1] = 0xff;
+
+    /* Remove the dragons from wherever they may be */
+    for (uint8_t stack_idx = 0; stack_idx <= CURSOR_DRAGON_SLOT_3; stack_idx++)
+    {
+        uint8_t top = top_card (stack_idx);
+
+        if (stack [stack_idx] [top] == card_match)
+        {
+            /* Animation start-point */
+            cursor_sd_to_xy (stack_idx, top, &from_x, &from_y);
+
+            stack [stack_idx] [top] = 0xff;
+            stack_changed [stack_idx] = true;
+            render_background ();
+
+            card_slide (from_x, from_y, to_x, to_y, 10, false);
+
+            /* If there are currently no cards in the destination, draw one after the first slide-animation */
+            if (stack [dest_idx] [0] == 0xff)
+            {
+                stack [dest_idx] [0] = card_match;
+                stack [dest_idx] [1] = 0xff;
+                stack_changed [dest_idx] = true;
+                render_background ();
+            }
+        }
+    }
+
+    stack [STACK_HELD] [0] = 0xff;
+
+    /* Place all four dragons into the destination slot */
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        stack [dest_idx] [i] = card_match;
+    }
+    stack [dest_idx] [4] = 0xff;
 }
 
 
