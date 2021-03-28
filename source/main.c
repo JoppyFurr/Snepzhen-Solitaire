@@ -869,30 +869,66 @@ void clear_background (void)
  */
 void move_auto (void)
 {
-    uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
-    uint8_t _cursor_stack = cursor_stack;
+    uint8_t from_x;
+    uint8_t from_y;
+    uint8_t to_x;
+    uint8_t to_y;
 
-    if (cursor_depth == top_card (stack_idx))
+    uint8_t from_stack = cursor_stack;
+
+    /* If we're already pointing at a foundation, there is nothing to do */
+    if (from_stack >= CURSOR_FOUNDATION_SNEP)
     {
-        cursor_pick ();
+        return;
+    }
 
-        /* Try placing in each slot */
-        for (uint8_t i = CURSOR_FOUNDATION_SNEP; stack [STACK_HELD] [0] != 0xff && i <= CURSOR_FOUNDATION_3; i++)
-        {
-            cursor_stack = i;
-            cursor_depth = CURSOR_DEPTH_MAX;
-            cursor_move (PORT_A_KEY_DOWN);
-            cursor_place ();
-        }
+    /* Only the top card in a stack can be auto-moved */
+    if (cursor_depth != top_card (from_stack))
+    {
+        return;
+    }
 
-        /* Restore cursor position, returning the card if we still have it */
-        cursor_stack = _cursor_stack;
+    /* Animation start-point */
+    cursor_sd_to_xy (from_stack, cursor_depth, &from_x, &from_y);
+
+    cursor_pick ();
+
+    /* Abort if there wasn't actually a card */
+    if (stack [STACK_HELD] [0] == 0xff)
+    {
+        return;
+    }
+
+    /* Try placing in each slot */
+    for (uint8_t i = CURSOR_FOUNDATION_SNEP; i <= CURSOR_FOUNDATION_3; i++)
+    {
+        cursor_stack = i;
         cursor_depth = CURSOR_DEPTH_MAX;
         cursor_move (PORT_A_KEY_DOWN);
-        if (stack [STACK_HELD] [0] != 0xff)
+        cursor_place ();
+
+        /* Placement was successful */
+        if (stack [STACK_HELD] [0] == 0xff)
         {
+            /* Animation end-point */
+            cursor_sd_to_xy (cursor_stack, cursor_depth, &to_x, &to_y);
+
+            cursor_pick ();
+            render_background ();
+            card_slide (from_x, from_y, to_x, to_y, 10, false);
             cursor_place ();
+            render_background ();
+            break;
         }
+    }
+
+    /* Restore cursor position, returning the card if we still have it */
+    cursor_stack = from_stack;
+    cursor_depth = CURSOR_DEPTH_MAX;
+    cursor_move (PORT_A_KEY_DOWN);
+    if (stack [STACK_HELD] [0] != 0xff)
+    {
+        cursor_place ();
     }
 }
 
