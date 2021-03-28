@@ -99,6 +99,11 @@ uint8_t top_card (uint8_t s)
 {
     uint8_t depth;
 
+    if (stack [s] [0] == 0xff)
+    {
+        return 0;
+    }
+
     for (depth = 0; depth < CURSOR_DEPTH_MAX; depth++)
     {
         if (stack [s] [depth + 1] == 0xff)
@@ -797,6 +802,55 @@ void deal (void)
 
 
 /*
+ * Undeal the cards (winning animation).
+ */
+void undeal (void)
+{
+    bool cards_left = true;
+    stack [STACK_HELD] [1] = 0xff;
+
+    while (cards_left)
+    {
+        cards_left = false;
+
+        for (uint8_t col = CURSOR_DRAGON_SLOT_1; col <= CURSOR_FOUNDATION_3; col++)
+        {
+            uint8_t stack_idx = (col < CURSOR_DRAGON_BUTTONS) ? col : col - 1;
+            uint8_t from_x;
+            uint8_t from_y;
+            uint8_t top;
+
+            if (col == CURSOR_DRAGON_BUTTONS)
+            {
+                continue;
+            }
+
+            top = top_card (stack_idx);
+
+            if (stack [stack_idx] [top] == 0xff)
+            {
+                continue;
+            }
+
+            cards_left = true;
+
+            cursor_sd_to_xy (col, top, &from_x, &from_y);
+
+            /* Animate the card being removed */
+            stack [STACK_HELD] [0] = stack [stack_idx] [top];
+            stack [stack_idx] [top] = 0xff;
+            stack_changed [stack_idx] = true;
+
+            render_background ();
+            card_slide (from_x, from_y, from_x, 192, 8, false);
+
+            stack [STACK_HELD] [0] = 0xff;
+        }
+    }
+}
+
+
+/*
  * Fill the name table with tile-zero.
  */
 void clear_background (void)
@@ -1050,6 +1104,20 @@ void game (void)
             sprite_update = false;
         }
         render_background ();
+
+        /* Check if the game is still in progress */
+        playing = false;
+        for (uint8_t i = 0; i <= CURSOR_COLUMN_8; i++)
+        {
+            if (stack [i] [0] != 0xff)
+            {
+                playing = true;
+            }
+        }
+        if (stack [STACK_HELD] [0] != 0xff)
+        {
+            playing = true;
+        }
     }
 }
 
@@ -1081,6 +1149,7 @@ void main (void)
     {
         deal ();
         game ();
+        undeal ();
     }
 }
 
