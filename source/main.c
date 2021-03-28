@@ -955,6 +955,9 @@ void move_cancel (void)
 
     card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
     cursor_place ();
+
+    /* Update the background early, to avoid a frame without the card */
+    render_background ();
 }
 
 
@@ -1015,13 +1018,12 @@ void game (void)
         /* Update H/W during vblank */
         SMS_waitForVBlank ();
 
-        render_background ();
-
         if (sprite_update)
         {
             SMS_copySpritestoSAT ();
             sprite_update = false;
         }
+        render_background ();
     }
 }
 
