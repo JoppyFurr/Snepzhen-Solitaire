@@ -17,6 +17,6 @@ void rng_seed (void)
         pop     af
     __endasm;
 
-    srand (rand () ^ r_value);
+    srand (rand () + r_value);
     sram_write ();
 }
