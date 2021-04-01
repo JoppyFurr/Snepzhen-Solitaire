@@ -12,6 +12,8 @@
 #define ARTWORK_SNEP    210
 #define OUTLINE_CARD    226
 #define BUTTON_TILES    234
+#define MENU_TEXT       258
+#define MENU_ICONS      270
 
 /* Patterns */
 const uint32_t patterns [] = {
@@ -864,6 +866,84 @@ const uint32_t patterns [] = {
     /* Hoof button bottom-right (active) */
     0x007002fc,     0x007002fc,     0x002004f8,     0x000004f8,
     0x004008f0,     0x000030c0,     0x0000c000,     0x00000000,
+
+    /*
+     * 258 - Menu text.
+     */
+
+    /* Start text */
+    0x00003f1c,     0x00003f1b,     0x00003f1b,     0x00003f1c,
+    0x00003f1f,     0x00003f1f,     0x00003f18,     0x00003f1f,
+    0x0000ff6f,     0x0000ffef,     0x0000ffc6,     0x0000ffed,
+    0x0000ff6d,     0x0000ff6d,     0x0000fff6,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ff2a,     0x0000ffa7,
+    0x0000ffaf,     0x0000ffaf,     0x0000ff2f,     0x0000ffff,
+    0x0000fc78,     0x0000fc78,     0x0000fc38,     0x0000fc78,
+    0x0000fc78,     0x0000fc78,     0x0000fcb8,     0x0000fcf8,
+
+    /* Table text */
+    0x00003f18,     0x00003f1e,     0x00003f1e,     0x00003f1e,
+    0x00003f1e,     0x00003f1e,     0x00003f1e,     0x00003f1f,
+    0x0000ff3e,     0x0000fffe,     0x0000ffe2,     0x0000ffda,
+    0x0000ffda,     0x0000ffda,     0x0000ffe2,     0x0000ffff,
+    0x0000fff7,     0x0000fff7,     0x0000ff36,     0x0000ffd5,
+    0x0000ffd4,     0x0000ffd5,     0x0000ff36,     0x0000ffff,
+    0x0000fcf8,     0x0000fcf8,     0x0000fc78,     0x0000fcb8,
+    0x0000fc38,     0x0000fcf8,     0x0000fc38,     0x0000fcf8,
+
+    /* Arrow text */
+    0x00003f19,     0x00003f16,     0x00003f16,     0x00003f10,
+    0x00003f16,     0x00003f16,     0x00003f16,     0x00003f1f,
+    0x0000ffff,     0x0000ffff,     0x0000ffaa,     0x0000ff99,
+    0x0000ffbb,     0x0000ffbb,     0x0000ffbb,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ff9a,     0x0000ff6a,
+    0x0000ff6a,     0x0000ff6d,     0x0000ff9d,     0x0000ffff,
+    0x0000fcf8,     0x0000fcf8,     0x0000fcb8,     0x0000fcb8,
+    0x0000fcb8,     0x0000fc78,     0x0000fc78,     0x0000fcf8,
+
+    /*
+     * 270 - Menu icons.
+     */
+
+    /* Start icon top-left */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Start icon top-right */
+    0x0003fcff,     0x0003fcff,     0x0006f9ff,     0x0006f9ff,
+    0x000cf3ff,     0x000cf3ff,     0x0018e7ff,     0x0018e7ff,
+    /* Start icon bottom-left */
+    0x00c03fff,     0x00609fff,     0x0030cfff,     0x0018e7ff,
+    0x000cf3ff,     0x0006f9ff,     0x0003fcff,     0x0001feff,
+    /* Start icon bottom-right */
+    0x0030cfff,     0x0030cfff,     0x00609fff,     0x00609fff,
+    0x00c03fff,     0x00c03fff,     0x00807fff,     0x00807fff,
+
+    /* Table icon top-left */
+    0xfe000101,     0xfe000101,     0xfe000101,     0xfe000101,
+    0xff00000f,     0xff00000f,     0x0f00f0ff,     0x0f00f0ff,
+    /* Table icon top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0xe0001fff,     0xe0001fff,     0xe0001fff,     0xe0001fff,
+    /* Table icon bottom-left */
+    0x0f00f0ff,     0x0f00f0ff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    /* Table icon bottom-right */
+    0xfe00ff01,     0xfe00ff01,     0xfe00ff01,     0xfe00ff01,
+    0xfe00ff01,     0xfe00ff01,     0x0000ffff,     0x0000ffff,
+
+    /* Arrow icon top-left */
+    0x0000ffef,     0x0010fff7,     0x0018fff3,     0x001cfff1,
+    0x0016fff8,     0x0017fff8,     0x0013fffc,     0x0013fffc,
+    /* Arrow icon top-right */
+    0x0000ffff,     0x0000ffff,     0x0000ffff,     0x0000ffff,
+    0x0000ffff,     0x0000ff7f,     0x0080ff3f,     0x00c0ff1f,
+    /* Arrow icon bottom-left */
+    0x0011fffe,     0x0012fffc,     0x0014fff9,     0x0019fff3,
+    0x0011fff7,     0x0000ffef,     0x0000ffff,     0x0000ffff,
+    /* Arrow icon bottom-right */
+    0x00e0ff0f,     0x0000ff07,     0x0080ff3f,     0x0040ff9f,
+    0x0040ff9f,     0x00a0ffcf,     0x00e0ff8f,     0x0000ff8f,
+
 
 };
 

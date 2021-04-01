@@ -23,14 +23,17 @@
 
 /* Palette */
 const uint8_t palette [16] = {
-    0x04,   /* 0 - (table) Dark green */
-    0x19,   /* 1 - (table) Light green */
-    0x00,   /* 2 - (card) Black */
-    0x3f,   /* 3 - (card) White */
-    0x02,   /* 4 - (card) Red */
-    0x09,   /* 5 - (card) Green */
-    0x2a,   /* 6 - (card) Light grey */
-    0x15,   /* 7 - (card) Dark grey */
+    0x04,   /*  0 - (table) Dark green */
+    0x19,   /*  1 - (table) Light green */
+    0x00,   /*  2 - (card / cursor) Black */
+    0x3f,   /*  3 - (card / cursor) White */
+    0x02,   /*  4 - (card) Red */
+    0x09,   /*  5 - (card / menu) Green */
+    0x2a,   /*  6 - (cursor) Light grey */
+    0x15,   /*  7 - (cursor) Dark grey */
+    0x24,   /*  8 - (menu) Blue */
+    0x16,   /*  9 - (menu) Brick */
+    0x04,   /* 10 - (menu) Dark green */
 };
 
 bool sprite_update = false;
@@ -241,10 +244,10 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 
     if (cursor_visible)
     {
-        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_WHITE    ));
-        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_WHITE + 1));
-        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_WHITE + 2));
-        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_WHITE + 3));
+        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_SILVER    ));
+        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_SILVER + 1));
+        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_SILVER + 2));
+        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_SILVER + 3));
     }
 
     /* Render held cards as sprites */
@@ -1123,6 +1126,52 @@ void game (void)
 
 
 /*
+ * Main menu.
+ */
+void menu (void)
+{
+    bool in_menu = true;
+    uint16_t card_tiles [] = {
+        BLANK_CARD +  0, BLANK_CARD +  2, BLANK_CARD +  2, BLANK_CARD +  3,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
+
+        BLANK_CARD +  8, BLANK_CARD +  9, BLANK_CARD +  9, BLANK_CARD + 10
+    };
+
+    /* Render background */
+    memset (stack_changed, true, sizeof (stack_changed));
+    render_background ();
+
+    /* Render menu cards */
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        uint16_t tile = MENU_TEXT + (4 * i);
+        card_tiles [4] = tile;
+        card_tiles [5] = tile + 1;
+        card_tiles [6] = tile + 2;
+        card_tiles [7] = tile + 3;
+
+        tile = MENU_ICONS + (4 * i);
+        card_tiles [13] = tile;
+        card_tiles [14] = tile + 1;
+        card_tiles [17] = tile + 2;
+        card_tiles [18] = tile + 3;
+
+        SMS_loadTileMapArea (4 * (i + 2), 9, &card_tiles, 4, 6);
+    }
+
+    while (in_menu)
+    {
+        SMS_waitForVBlank ();
+    }
+}
+
+
+/*
  * Entry point.
  */
 void main (void)
@@ -1142,6 +1191,8 @@ void main (void)
     SMS_displayOn ();
 
     sram_load ();
+
+    menu ();
 
     /* Main loop */
     while (true)
