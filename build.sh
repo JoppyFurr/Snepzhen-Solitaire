@@ -13,7 +13,7 @@ mkdir -p build
 
 echo ""
 echo "Compiling..."
-for file in main rng sram
+for file in main save rng
 do
     echo " -> ${file}.c"
     ${sdcc} -c -mz80 --peep-file ${devkitSMS}/SMSlib/src/peep-rules.txt -I ${SMSlib}/src \

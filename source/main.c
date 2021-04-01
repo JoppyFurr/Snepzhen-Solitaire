@@ -11,7 +11,7 @@
 
 #include "SMSlib.h"
 
-#include "sram.h"
+#include "save.h"
 #include "rng.h"
 #include "patterns.c"
 
@@ -1141,8 +1141,7 @@ void main (void)
 
     SMS_displayOn ();
 
-    sram_enable ();
-    sram_read ();
+    sram_load ();
 
     /* Main loop */
     while (true)
