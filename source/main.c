@@ -37,6 +37,7 @@ const uint8_t palette [16] = {
 };
 
 bool sprite_update = false;
+uint8_t cursor_style = 2;
 
 /* Card bits:
  *   [6:7] Zero
@@ -244,10 +245,10 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 
     if (cursor_visible)
     {
-        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_SILVER    ));
-        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_SILVER + 1));
-        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_SILVER + 2));
-        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_SILVER + 3));
+        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_BLACK + (4 * cursor_style)    ));
+        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 1));
+        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 2));
+        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 3));
     }
 
     /* Render held cards as sprites */
@@ -1126,6 +1127,36 @@ void game (void)
 
 
 /*
+ * Cycle through different colour schemes.
+ */
+void next_palette (void)
+{
+    static uint8_t index = 0;
+
+    index = (index + 1) % 3;
+
+    switch (index)
+    {
+        case 0:
+            SMS_setSpritePaletteColor (0, 0x04); /* Dark green */
+            SMS_setBGPaletteColor     (0, 0x04); /* Dark green */
+            SMS_setBGPaletteColor     (1, 0x19); /* Light green */
+            break;
+        case 1:
+            SMS_setSpritePaletteColor (0, 0x24); /* Light blue */
+            SMS_setBGPaletteColor     (0, 0x24); /* Light blue */
+            SMS_setBGPaletteColor     (1, 0x20); /* Dark blue */
+            break;
+        case 2:
+            SMS_setSpritePaletteColor (0, 0x02); /* Red */
+            SMS_setBGPaletteColor     (0, 0x02); /* Red */
+            SMS_setBGPaletteColor     (1, 0x16); /* Brick*/
+            break;
+    }
+}
+
+
+/*
  * Main menu.
  */
 void menu (void)
@@ -1145,6 +1176,9 @@ void menu (void)
     /* Render background */
     memset (stack_changed, true, sizeof (stack_changed));
     render_background ();
+    cursor_stack = 2;
+    cursor_depth = 0;
+    cursor_render ();
 
     /* Render menu cards */
     for (uint8_t i = 0; i < 3; i++)
@@ -1166,8 +1200,49 @@ void menu (void)
 
     while (in_menu)
     {
+        static uint16_t keys_previous = 0;
+        uint16_t keys = SMS_getKeysStatus ();
+        uint16_t keys_pressed = (keys & ~keys_previous);
+
+        /* Logic */
+        if (keys_pressed & PORT_A_KEY_DPAD)
+        {
+            cursor_move (keys_pressed);
+        }
+
+        if (keys_pressed & PORT_A_KEY_1)
+        {
+            /* Start */
+            if (cursor_stack == 2)
+            {
+                in_menu = false;
+            }
+            /* Table */
+            else if (cursor_stack == 3)
+            {
+                next_palette ();
+            }
+            /* Arrow */
+            else if (cursor_stack == 4)
+            {
+                cursor_style = (cursor_style + 1) % 3;
+                cursor_render ();
+            }
+        }
+
+        keys_previous = keys;
+
         SMS_waitForVBlank ();
+
+        if (sprite_update)
+        {
+            SMS_copySpritestoSAT ();
+            sprite_update = false;
+        }
     }
+
+    memset (stack_changed, true, sizeof (stack_changed));
+    render_background ();
 }
 
 
