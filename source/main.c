@@ -1087,7 +1087,11 @@ void game (void)
         }
         else if (keys_pressed & PORT_A_KEY_2)
         {
-            if (stack [STACK_HELD] [0] == 0xff)
+            if (cursor_stack == CURSOR_DRAGON_BUTTONS)
+            {
+                /* Do nothing */
+            }
+            else if (stack [STACK_HELD] [0] == 0xff)
             {
                 move_auto ();
             }
