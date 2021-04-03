@@ -259,16 +259,24 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 
         for (uint8_t i = top; i != 0xff; i--)
         {
-            uint8_t card_y = cursor_y + (8 * i) - 4;
+            uint16_t card_y = cursor_y + (8 * i) - 4;
             uint16_t card_tiles [24];
 
             render_card_tiles (card_tiles, stack [STACK_HELD] [i], i > 0);
 
             for (uint8_t y = 0; y < 6; y++)
             {
+                uint16_t sprite_y = card_y + (8 * y);
+
+                /* Don't draw sprites that are completely off screen */
+                if (sprite_y > 192)
+                {
+                    continue;
+                }
+
                 for (uint8_t x = 0; x < 4; x++)
                 {
-                    SMS_addSprite (card_x + (8 * x), card_y + (8 * y), (uint8_t) card_tiles [x + (4 * y)]);
+                    SMS_addSprite (card_x + (8 * x), sprite_y, (uint8_t) card_tiles [x + (4 * y)]);
                 }
 
                 /* Only the top card is fully drawn */
