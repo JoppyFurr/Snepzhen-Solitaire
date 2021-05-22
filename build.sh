@@ -26,7 +26,7 @@ ${sdcc} -o build/snepzhen_solitaire.ihx -mz80 --no-std-crt0 --data-loc 0xC000 ${
 
 echo ""
 echo "Generating ROM..."
-${ihx2sms} build/snepzhen_solitaire.ihx snepszhen_solitaire.sms || exit 1
+${ihx2sms} build/snepzhen_solitaire.ihx snepzhen_solitaire.sms || exit 1
 
 echo ""
 echo "Done"
