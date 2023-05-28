@@ -1148,6 +1148,7 @@ void game (void)
                     if (button_active [cursor_depth])
                     {
                         stack_dragons ();
+                        cursor_move (0);
                     }
                 }
                 else
