@@ -13,28 +13,16 @@
 
 #include "save.h"
 #include "rng.h"
-#include "patterns.c"
+
+#include "../tile_data/pattern.h"
+#include "../tile_data/pattern_index.h"
+#include "../tile_data/palette.h"
 
 /* Constants */
 #define PORT_A_KEY_DPAD     (PORT_A_KEY_UP | PORT_A_KEY_DOWN | PORT_A_KEY_LEFT | PORT_A_KEY_RIGHT)
 #define CARD_TYPE_MASK      0x30
 #define CARD_VALUE_MASK     0x0f
 #define STACK_HELD          15
-
-/* Palette */
-const uint8_t palette [16] = {
-    0x04,   /*  0 - (table) Dark green */
-    0x19,   /*  1 - (table) Light green */
-    0x00,   /*  2 - (card / cursor) Black */
-    0x3f,   /*  3 - (card / cursor) White */
-    0x02,   /*  4 - (card) Red */
-    0x09,   /*  5 - (card / menu) Green */
-    0x2a,   /*  6 - (cursor) Light grey */
-    0x15,   /*  7 - (cursor) Dark grey */
-    0x24,   /*  8 - (menu) Blue */
-    0x16,   /*  9 - (menu) Brick */
-    0x04,   /* 10 - (menu) Dark green */
-};
 
 bool sprite_update = false;
 uint8_t cursor_style = 2;
@@ -172,12 +160,12 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
     uint8_t tile;
 
     uint16_t card_tiles [] = {
-        BLANK_CARD +  0, BLANK_CARD +  2, BLANK_CARD +  2, BLANK_CARD +  3,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  8, BLANK_CARD +  9, BLANK_CARD +  9, BLANK_CARD + 10
+        PATTERN_CARD_BLANK +  0, PATTERN_CARD_BLANK +  2, PATTERN_CARD_BLANK +  2, PATTERN_CARD_BLANK +  3,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  9, PATTERN_CARD_BLANK + 10, PATTERN_CARD_BLANK + 10, PATTERN_CARD_BLANK + 11
     };
 
     if ((card & CARD_TYPE_MASK) == 0x30)
@@ -185,21 +173,21 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         if (value == 3)
         {
             /* Snep card */
-            card_tiles [0]  = CORNER_SNEP;
-            card_tiles [23] = CORNER_SNEP + 2;
+            card_tiles [0]  = PATTERN_CORNER_SNEP;
+            card_tiles [23] = PATTERN_CORNER_SNEP + 2;
 
             for (uint8_t i = 0; i < 16; i++)
             {
-                card_tiles [i + 4] = ARTWORK_SNEP + i;
+                card_tiles [i + 4] = PATTERN_SNEP_CARD + i;
             }
         }
         else
         {
             /* Print card */
-            card_tiles [0]  = CORNER_PRINTS + (value * 3);
-            card_tiles [1]  = CORNER_PRINTS + (value * 3) + 2;
+            card_tiles [0]  = PATTERN_CORNER_PRINTS + (value * 3);
+            card_tiles [1]  = PATTERN_CORNER_PRINTS + (value * 3) + 2;
 
-            tile = ARTWORK_PRINTS + value * 4;
+            tile = PATTERN_PRINTS + value * 4;
             card_tiles [ 9] = tile;
             card_tiles [10] = tile + 1;
             card_tiles [13] = tile + 2;
@@ -212,11 +200,11 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         uint8_t colour = card >> 4;
 
         /* Card corners */
-        tile = CORNER_NUMBERS + value * 6 + colour * 2;
+        tile = PATTERN_CORNER_NUMBERS + value * 6 + colour * 2;
         card_tiles [ 0] = tile;
 
         /* Chinese numbers */
-        tile = ARTWORK_NUMBERS + value * 12 + colour * 4;
+        tile = PATTERN_CHINESE_NUMBERS + value * 12 + colour * 4;
         card_tiles [ 9] = tile;
         card_tiles [10] = tile + 1;
         card_tiles [13] = tile + 2;
@@ -245,10 +233,10 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 
     if (cursor_visible)
     {
-        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (CURSOR_BLACK + (4 * cursor_style)    ));
-        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 1));
-        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 2));
-        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (CURSOR_BLACK + (4 * cursor_style) + 3));
+        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * cursor_style)    ));
+        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 1));
+        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 2));
+        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 3));
     }
 
     /* Render held cards as sprites */
@@ -695,15 +683,15 @@ void render_card_background (uint8_t col, uint8_t y, uint8_t card, bool stacked,
 void render_background (void)
 {
     uint16_t blank_line [] = {
-        EMPTY_TILE, EMPTY_TILE, EMPTY_TILE, EMPTY_TILE
+        PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY
     };
     uint16_t empty_slot [] = {
-        OUTLINE_CARD + 0, OUTLINE_CARD + 1, OUTLINE_CARD + 1, OUTLINE_CARD + 2,
-        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
-        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
-        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
-        OUTLINE_CARD + 3, EMPTY_TILE,       EMPTY_TILE,       OUTLINE_CARD + 4,
-        OUTLINE_CARD + 5, OUTLINE_CARD + 6, OUTLINE_CARD + 6, OUTLINE_CARD + 7
+        PATTERN_CARD_OUTLINE + 0, PATTERN_CARD_OUTLINE + 1, PATTERN_CARD_OUTLINE + 1, PATTERN_CARD_OUTLINE + 2,
+        PATTERN_CARD_OUTLINE + 3, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 5,
+        PATTERN_CARD_OUTLINE + 3, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 5,
+        PATTERN_CARD_OUTLINE + 3, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 5,
+        PATTERN_CARD_OUTLINE + 3, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 4, PATTERN_CARD_OUTLINE + 5,
+        PATTERN_CARD_OUTLINE + 6, PATTERN_CARD_OUTLINE + 7, PATTERN_CARD_OUTLINE + 7, PATTERN_CARD_OUTLINE + 8
     };
     uint16_t button_tiles [4];
 
@@ -780,10 +768,10 @@ void render_background (void)
     /* Buttons */
     for (uint8_t i = 0; i < 3; i++)
     {
-        button_tiles [0] = BUTTON_TILES + (i * 8) + (button_active [i] * 4);
-        button_tiles [1] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 1;
-        button_tiles [2] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 2;
-        button_tiles [3] = BUTTON_TILES + (i * 8) + (button_active [i] * 4) + 3;
+        button_tiles [0] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4);
+        button_tiles [1] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 1;
+        button_tiles [2] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 2;
+        button_tiles [3] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 3;
 
         SMS_loadTileMapArea (13, (i * 2) + 1, &button_tiles, 2, 2);
     }
@@ -1243,14 +1231,12 @@ void menu (void)
 {
     bool in_menu = true;
     uint16_t card_tiles [] = {
-        BLANK_CARD +  0, BLANK_CARD +  2, BLANK_CARD +  2, BLANK_CARD +  3,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-        BLANK_CARD +  5, BLANK_CARD +  6, BLANK_CARD +  6, BLANK_CARD +  7,
-
-        BLANK_CARD +  8, BLANK_CARD +  9, BLANK_CARD +  9, BLANK_CARD + 10
+        PATTERN_CARD_BLANK +  0, PATTERN_CARD_BLANK +  2, PATTERN_CARD_BLANK +  2, PATTERN_CARD_BLANK +  3,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  5, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  6, PATTERN_CARD_BLANK +  7,
+        PATTERN_CARD_BLANK +  9, PATTERN_CARD_BLANK + 10, PATTERN_CARD_BLANK + 10, PATTERN_CARD_BLANK + 11
     };
 
     /* Render background */
@@ -1263,13 +1249,13 @@ void menu (void)
     /* Render menu cards */
     for (uint8_t i = 0; i < 3; i++)
     {
-        uint16_t tile = MENU_TEXT + (4 * i);
+        uint16_t tile = PATTERN_MENU_TEXT + (4 * i);
         card_tiles [4] = tile;
         card_tiles [5] = tile + 1;
         card_tiles [6] = tile + 2;
         card_tiles [7] = tile + 3;
 
-        tile = MENU_ICONS + (4 * i);
+        tile = PATTERN_MENU_ICONS + (4 * i);
         card_tiles [13] = tile;
         card_tiles [14] = tile + 1;
         card_tiles [17] = tile + 2;

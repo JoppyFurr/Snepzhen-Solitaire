@@ -7,26 +7,69 @@ sdcc="${HOME}/Code/sdcc-4.2.0/bin/sdcc"
 devkitSMS="${HOME}/Code/devkitSMS"
 SMSlib="${devkitSMS}/SMSlib"
 ihx2sms="${devkitSMS}/ihx2sms/Linux/ihx2sms"
+sneptile="./tools/Sneptile-0.1.0/Sneptile"
 
-rm -r build
-mkdir -p build
+build_sneptile ()
+{
+    # Early return if we've already got an up-to-date build
+    if [ -e $sneptile -a "./tools/Sneptile-0.1.0/source/main.c" -ot $sneptile ]
+    then
+        return
+    fi
 
-echo ""
-echo "Compiling..."
-for file in main save rng
-do
-    echo " -> ${file}.c"
-    ${sdcc} -c -mz80 --peep-file ${devkitSMS}/SMSlib/src/peep-rules.txt -I ${SMSlib}/src \
-        -o "build/${file}.rel" "source/${file}.c" || exit 1
-done
+    echo "Building Sneptile..."
+    (
+        cd "tools/Sneptile-0.1.0"
+        ./build.sh
+    )
+}
 
-echo ""
-echo "Linking..."
-${sdcc} -o build/snepzhen_solitaire.ihx -mz80 --no-std-crt0 --data-loc 0xC000 ${devkitSMS}/crt0/crt0_sms.rel build/*.rel ${SMSlib}/SMSlib.lib || exit 1
+build_snepzhen ()
+{
+    echo "Building Snepzhen Solitaire..."
 
-echo ""
-echo "Generating ROM..."
-${ihx2sms} build/snepzhen_solitaire.ihx snepzhen_solitaire.sms || exit 1
+    echo "  Generating tile data..."
+    mkdir -p tile_data
+    (
+        $sneptile --output tile_data --palette 0x04 0x19 \
+            tiles/empty.png \
+            tiles/cursor.png \
+            tiles/card-outline.png \
+            tiles/card-blank.png \
+            tiles/corner-numbers.png \
+            tiles/corner-prints.png \
+            tiles/corner-snep.png \
+            tiles/chinese-numbers.png \
+            tiles/prints.png \
+            tiles/snep-card.png \
+            tiles/dragon-buttons.png \
+            tiles/menu-text.png \
+            tiles/menu-icons.png
+    )
 
-echo ""
-echo "Done"
+    mkdir -p build
+    echo "  Compiling..."
+    for file in main save rng
+    do
+        echo " -> ${file}.c"
+        ${sdcc} -c -mz80 --peep-file ${devkitSMS}/SMSlib/src/peep-rules.txt -I ${SMSlib}/src \
+            -o "build/${file}.rel" "source/${file}.c" || exit 1
+    done
+
+    echo ""
+    echo "Linking..."
+    ${sdcc} -o build/snepzhen_solitaire.ihx -mz80 --no-std-crt0 --data-loc 0xC000 ${devkitSMS}/crt0/crt0_sms.rel build/*.rel ${SMSlib}/SMSlib.lib || exit 1
+
+    echo ""
+    echo "Generating ROM..."
+    ${ihx2sms} build/snepzhen_solitaire.ihx snepzhen_solitaire.sms || exit 1
+
+    echo ""
+    echo "Done"
+}
+
+# Clean up any old build artefacts
+rm -rf build
+
+build_sneptile
+build_snepzhen
