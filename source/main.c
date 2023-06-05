@@ -1199,26 +1199,52 @@ void game (void)
  */
 void next_palette (void)
 {
-    static uint8_t index = 0;
+    /* Start on dark-green */
+    static uint8_t index = 1;
 
-    index = (index + 1) % 3;
+    index = (index + 1) % 8;
 
     switch (index)
     {
-        case 0:
-            SMS_setSpritePaletteColor (0, 0x04); /* Dark green */
-            SMS_setBGPaletteColor     (0, 0x04); /* Dark green */
-            SMS_setBGPaletteColor     (1, 0x19); /* Light green */
-            break;
-        case 1:
-            SMS_setSpritePaletteColor (0, 0x24); /* Light blue */
-            SMS_setBGPaletteColor     (0, 0x24); /* Light blue */
-            SMS_setBGPaletteColor     (1, 0x20); /* Dark blue */
-            break;
-        case 2:
-            SMS_setSpritePaletteColor (0, 0x02); /* Red */
-            SMS_setBGPaletteColor     (0, 0x02); /* Red */
+        case 0: /* Dark Red */
+            SMS_setSpritePaletteColor (0, 0x01); /* Dark Red */
+            SMS_setBGPaletteColor     (0, 0x01); /* Dark Red */
             SMS_setBGPaletteColor     (1, 0x16); /* Brick*/
+            break;
+        case 1: /* Dark Green */
+            SMS_setSpritePaletteColor (0, 0x04); /* Dark Green */
+            SMS_setBGPaletteColor     (0, 0x04); /* Dark Green */
+            SMS_setBGPaletteColor     (1, 0x19); /* Light Green */
+            break;
+        case 2: /* Dark Blue */
+            SMS_setSpritePaletteColor (0, 0x10); /* Dark Blue */
+            SMS_setBGPaletteColor     (0, 0x10); /* Dark Blue */
+            SMS_setBGPaletteColor     (1, 0x24); /* Light Blue */
+            break;
+        case 3: /* Dark */
+            SMS_setSpritePaletteColor (0, 0x15); /* Dark Grey */
+            SMS_setBGPaletteColor     (0, 0x15); /* Dark Grey */
+            SMS_setBGPaletteColor     (1, 0x2a); /* Light Grey */
+            break;
+        case 4: /* Light Red */
+            SMS_setSpritePaletteColor (0, 0x16); /* Light Red */
+            SMS_setBGPaletteColor     (0, 0x16); /* Light Red */
+            SMS_setBGPaletteColor     (1, 0x01); /* Dark Red*/
+            break;
+        case 5: /* Light Green */
+            SMS_setSpritePaletteColor (0, 0x19); /* Light Green */
+            SMS_setBGPaletteColor     (0, 0x19); /* Light Green */
+            SMS_setBGPaletteColor     (1, 0x04); /* Dark Green */
+            break;
+        case 6: /* Light Blue */
+            SMS_setSpritePaletteColor (0, 0x24); /* Light Blue */
+            SMS_setBGPaletteColor     (0, 0x24); /* Light Blue */
+            SMS_setBGPaletteColor     (1, 0x10); /* Dark Blue */
+            break;
+        case 7: /* Light */
+            SMS_setSpritePaletteColor (0, 0x2a); /* Light Grey */
+            SMS_setBGPaletteColor     (0, 0x2a); /* Light Grey */
+            SMS_setBGPaletteColor     (1, 0x15); /* Dark Grey */
             break;
     }
 }
