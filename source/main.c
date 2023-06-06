@@ -174,7 +174,6 @@ void render_card_tiles (uint16_t *buf, uint8_t card, bool stacked)
         {
             /* Snep card */
             card_tiles [0]  = PATTERN_CORNER_SNEP;
-            card_tiles [23] = PATTERN_CORNER_SNEP + 2;
 
             for (uint8_t i = 0; i < 16; i++)
             {
