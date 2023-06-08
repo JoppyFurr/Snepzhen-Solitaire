@@ -1272,6 +1272,24 @@ void next_palette (void)
 
 
 /*
+ * Show or hide the version number.
+ */
+void show_version (bool show)
+{
+    if (show)
+    {
+        uint16_t version_tiles [] = { PATTERN_VERSION + 0, PATTERN_VERSION + 1, PATTERN_VERSION + 2 };
+        SMS_loadTileMapArea (29, 23, &version_tiles, 3, 1);
+    }
+    else
+    {
+        uint16_t blank_tiles [] = { PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY };
+        SMS_loadTileMapArea (29, 23, &blank_tiles, 3, 1);
+    }
+}
+
+
+/*
  * Main menu.
  */
 void menu (void)
@@ -1289,6 +1307,7 @@ void menu (void)
     /* Render background */
     memset (stack_changed, true, sizeof (stack_changed));
     render_background ();
+    show_version (true);
     cursor_stack = 2;
     cursor_depth = 0;
     cursor_render ();
@@ -1355,6 +1374,7 @@ void menu (void)
     }
 
     memset (stack_changed, true, sizeof (stack_changed));
+    show_version (false);
     render_background ();
 }
 

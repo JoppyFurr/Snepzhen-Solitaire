@@ -46,7 +46,8 @@ build_snepzhen ()
             tiles/snep-card.png \
             tiles/dragon-buttons.png \
             tiles/menu-text.png \
-            tiles/menu-icons.png
+            tiles/menu-icons.png \
+            tiles/version.png
     )
 
     mkdir -p build
