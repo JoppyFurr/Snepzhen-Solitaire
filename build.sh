@@ -31,7 +31,9 @@ build_snepzhen ()
     echo "  Generating tile data..."
     mkdir -p tile_data
     (
-        $sneptile --output tile_data --palette 0x04 0x19 \
+        # Note: Index 0 is used for transparency. An unused colour 0x0f is used as a place-holder.
+        #       Index 1 is used for the card outlines, which can change at runtime.
+        $sneptile --output tile_data --palette 0x0f 0x19 \
             tiles/empty.png \
             tiles/cursor.png \
             tiles/card-outline.png \

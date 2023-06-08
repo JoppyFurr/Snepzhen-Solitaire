@@ -83,6 +83,8 @@ enum cursor_stack_e
 uint8_t cursor_stack = CURSOR_COLUMN_1;
 uint8_t cursor_depth = CURSOR_DEPTH_MAX;
 
+uint8_t frame_counter = 0;
+
 
 /*
  * Calculate the index of the top card in the selected stack.
@@ -767,10 +769,23 @@ void render_background (void)
     /* Buttons */
     for (uint8_t i = 0; i < 3; i++)
     {
-        button_tiles [0] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4);
-        button_tiles [1] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 1;
-        button_tiles [2] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 2;
-        button_tiles [3] = PATTERN_DRAGON_BUTTONS + (i * 8) + (button_active [i] * 4) + 3;
+        if (button_active [i])
+        {
+            /* Flash the dragon buttons if they're active */
+            int offset = (frame_counter >= 30) ? 8 : 4;
+
+            button_tiles [0] = PATTERN_DRAGON_BUTTONS + (i * 12) + offset;
+            button_tiles [1] = PATTERN_DRAGON_BUTTONS + (i * 12) + offset + 1;
+            button_tiles [2] = PATTERN_DRAGON_BUTTONS + (i * 12) + offset + 2;
+            button_tiles [3] = PATTERN_DRAGON_BUTTONS + (i * 12) + offset + 3;
+        }
+        else
+        {
+            button_tiles [0] = PATTERN_DRAGON_BUTTONS + (i * 12);
+            button_tiles [1] = PATTERN_DRAGON_BUTTONS + (i * 12) + 1;
+            button_tiles [2] = PATTERN_DRAGON_BUTTONS + (i * 12) + 2;
+            button_tiles [3] = PATTERN_DRAGON_BUTTONS + (i * 12) + 3;
+        }
 
         SMS_loadTileMapArea (13, (i * 2) + 1, &button_tiles, 2, 2);
     }
@@ -1166,6 +1181,13 @@ void game (void)
 
         keys_previous = keys;
 
+        /* Within-second Frame counter */
+        frame_counter++;
+        if (frame_counter >= 60)
+        {
+            frame_counter -= 60;
+        }
+
         /* Update H/W during vblank */
         SMS_waitForVBlank ();
 
@@ -1345,6 +1367,8 @@ void main (void)
     /* Setup */
     SMS_loadBGPalette (palette);
     SMS_loadSpritePalette (palette);
+    SMS_setSpritePaletteColor (0, 0x04); /* Initialize background to dark green */
+    SMS_setBGPaletteColor     (0, 0x04);
     SMS_setBackdropColor (0);
 
     SMS_loadTiles (patterns, 0, sizeof (patterns));
