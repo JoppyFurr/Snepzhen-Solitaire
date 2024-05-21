@@ -349,6 +349,7 @@ void cursor_move_up (void)
     else if (cursor_stack <= CURSOR_COLUMN_8)
     {
         cursor_stack += 8;
+        cursor_depth = CURSOR_DEPTH_MAX;
     }
 }
 
