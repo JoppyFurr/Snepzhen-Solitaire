@@ -884,7 +884,7 @@ void deal (void)
 
 
 /*
- * Undeal the cards (winning animation).
+ * Undeal the cards (winning/reset animation).
  */
 void undeal (void)
 {
@@ -895,12 +895,18 @@ void undeal (void)
     {
         cards_left = false;
 
-        for (uint8_t col = CURSOR_DRAGON_SLOT_1; col <= CURSOR_FOUNDATION_3; col++)
+        for (uint8_t col = CURSOR_COLUMN_1; col <= CURSOR_FOUNDATION_3; col++)
         {
             uint8_t stack_idx = (col < CURSOR_DRAGON_BUTTONS) ? col : col - 1;
             uint8_t from_x;
             uint8_t from_y;
             uint8_t top;
+
+            /* Don't undeal the foundations until the tableau is empty. */
+            if (col == CURSOR_DRAGON_SLOT_1 && cards_left == true)
+            {
+                break;
+            }
 
             if (col == CURSOR_DRAGON_BUTTONS)
             {
@@ -1135,6 +1141,13 @@ void game (void)
         static uint16_t keys_previous = 0;
         uint16_t keys = SMS_getKeysStatus ();
         uint16_t keys_pressed = (keys & ~keys_previous);
+
+        /* Check for soft-reset key,
+         * returning will trigger a new deal. */
+        if (keys_pressed & RESET_KEY)
+        {
+            return;
+        }
 
         /* Logic */
         if (keys_pressed & PORT_A_KEY_DPAD)
@@ -1388,7 +1401,7 @@ void main (void)
     /* Setup */
     SMS_loadBGPalette (palette);
     SMS_loadSpritePalette (palette);
-    SMS_setSpritePaletteColor (0, 0x04); /* Initialize background to dark green */
+    SMS_setSpritePaletteColor (0, 0x04); /* Initialise background to dark green */
     SMS_setBGPaletteColor     (0, 0x04);
     SMS_setBackdropColor (0);
 
