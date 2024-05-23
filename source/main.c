@@ -388,7 +388,18 @@ void cursor_move_down (void)
  */
 void cursor_move_left (void)
 {
-    cursor_stack = (cursor_stack + (CURSOR_STACK_MAX - 1)) % CURSOR_STACK_MAX;
+    if (cursor_stack == CURSOR_TABLEAU_1)
+    {
+        cursor_stack = CURSOR_TABLEAU_8;
+    }
+    else if (cursor_stack == CURSOR_DRAGON_SLOT_1)
+    {
+        cursor_stack = CURSOR_FOUNDATION_3;
+    }
+    else
+    {
+        cursor_stack--;
+    }
     cursor_depth = CURSOR_DEPTH_MAX;
 
     if (cursor_stack == CURSOR_DRAGON_BUTTONS)
@@ -412,7 +423,18 @@ void cursor_move_left (void)
  */
 void cursor_move_right (void)
 {
-    cursor_stack = (cursor_stack + 1) % CURSOR_STACK_MAX;
+    if (cursor_stack == CURSOR_TABLEAU_8)
+    {
+        cursor_stack = CURSOR_TABLEAU_1;
+    }
+    else if (cursor_stack == CURSOR_FOUNDATION_3)
+    {
+        cursor_stack = CURSOR_DRAGON_SLOT_1;
+    }
+    else
+    {
+        cursor_stack++;
+    }
     cursor_depth = CURSOR_DEPTH_MAX;
 
     /* Skip over the buttons if holding a card */
