@@ -58,16 +58,16 @@ uint8_t came_from = 0xff;
 bool button_active [3] = { false };
 
 /* Cursor */
-enum cursor_stack_e
+enum cursor_position_e
 {
-    CURSOR_COLUMN_1 = 0,
-    CURSOR_COLUMN_2,
-    CURSOR_COLUMN_3,
-    CURSOR_COLUMN_4,
-    CURSOR_COLUMN_5,
-    CURSOR_COLUMN_6,
-    CURSOR_COLUMN_7,
-    CURSOR_COLUMN_8,
+    CURSOR_TABLEAU_1 = 0,
+    CURSOR_TABLEAU_2,
+    CURSOR_TABLEAU_3,
+    CURSOR_TABLEAU_4,
+    CURSOR_TABLEAU_5,
+    CURSOR_TABLEAU_6,
+    CURSOR_TABLEAU_7,
+    CURSOR_TABLEAU_8,
     CURSOR_DRAGON_SLOT_1,
     CURSOR_DRAGON_SLOT_2,
     CURSOR_DRAGON_SLOT_3,
@@ -80,7 +80,7 @@ enum cursor_stack_e
 };
 
 #define CURSOR_DEPTH_MAX 15
-uint8_t cursor_stack = CURSOR_COLUMN_1;
+uint8_t cursor_stack = CURSOR_TABLEAU_1;
 uint8_t cursor_depth = CURSOR_DEPTH_MAX;
 
 uint8_t frame_counter = 0;
@@ -292,7 +292,7 @@ void cursor_sd_to_xy (uint8_t stack, uint8_t depth, uint8_t *x, uint8_t *y)
     {
         *y = (depth * 16) + 16;
     }
-    else if (stack > CURSOR_COLUMN_8)
+    else if (stack > CURSOR_TABLEAU_8)
     {
         *y = 12;
     }
@@ -332,11 +332,11 @@ void cursor_move_up (void)
 {
     if (cursor_depth > 0 &&
             ((cursor_stack == CURSOR_DRAGON_BUTTONS) ||
-             (cursor_stack <= CURSOR_COLUMN_8 && stack [STACK_HELD] [0] == 0xff)))
+             (cursor_stack <= CURSOR_TABLEAU_8 && stack [STACK_HELD] [0] == 0xff)))
     {
         cursor_depth--;
     }
-    else if (cursor_stack == CURSOR_COLUMN_4)
+    else if (cursor_stack == CURSOR_TABLEAU_4)
     {
         /* Special case for column below dragon cards:
          * Only jump if we aren't holding a card. Start on the bottom button. */
@@ -346,7 +346,7 @@ void cursor_move_up (void)
             cursor_depth = 2;
         }
     }
-    else if (cursor_stack <= CURSOR_COLUMN_8)
+    else if (cursor_stack <= CURSOR_TABLEAU_8)
     {
         cursor_stack += 8;
         cursor_depth = CURSOR_DEPTH_MAX;
@@ -363,7 +363,7 @@ void cursor_move_down (void)
     {
         if (cursor_depth == 2)
         {
-            cursor_stack = CURSOR_COLUMN_4;
+            cursor_stack = CURSOR_TABLEAU_4;
             cursor_depth = CURSOR_DEPTH_MAX;
         }
         else
@@ -502,7 +502,7 @@ void cursor_pick (void)
 
             if (i > 0)
             {
-                if (cursor_stack <= CURSOR_COLUMN_8)
+                if (cursor_stack <= CURSOR_TABLEAU_8)
                 {
                     /* Colours must alternate */
                     if ((card & CARD_TYPE_MASK) == (previous_card & CARD_TYPE_MASK))
@@ -561,7 +561,7 @@ void cursor_place (void)
     {
         uint8_t stack_card = stack [stack_idx] [cursor_depth];
 
-        if (cursor_stack <= CURSOR_COLUMN_8)
+        if (cursor_stack <= CURSOR_TABLEAU_8)
         {
             if (stack_card != 0xff)
             {
@@ -877,7 +877,7 @@ void deal (void)
         }
     }
 
-    cursor_stack = CURSOR_COLUMN_1;
+    cursor_stack = CURSOR_TABLEAU_1;
     cursor_depth = CURSOR_DEPTH_MAX;
     cursor_move (0);
 }
@@ -895,7 +895,7 @@ void undeal (void)
     {
         cards_left = false;
 
-        for (uint8_t col = CURSOR_COLUMN_1; col <= CURSOR_FOUNDATION_3; col++)
+        for (uint8_t col = CURSOR_TABLEAU_1; col <= CURSOR_FOUNDATION_3; col++)
         {
             uint8_t stack_idx = (col < CURSOR_DRAGON_BUTTONS) ? col : col - 1;
             uint8_t from_x;
@@ -1214,7 +1214,7 @@ void game (void)
 
         /* Check if the game is still in progress */
         playing = false;
-        for (uint8_t i = 0; i <= CURSOR_COLUMN_8; i++)
+        for (uint8_t i = 0; i <= CURSOR_TABLEAU_8; i++)
         {
             if (stack [i] [0] != 0xff)
             {
