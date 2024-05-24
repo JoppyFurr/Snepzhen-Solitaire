@@ -1,5 +1,6 @@
 /*
  * Snepzhen Solitaire
+ * JoppyFurr
  *
  * A Shenzhen I/O Solitaire clone for the Sega Master System
  */
@@ -11,6 +12,7 @@
 
 #include "SMSlib.h"
 
+#include "snepzhen.h"
 #include "save.h"
 #include "rng.h"
 
@@ -24,8 +26,12 @@
 #define CARD_VALUE_MASK     0x0f
 #define STACK_HELD          15
 
+settings_t settings = {
+    .cursor_theme = 2,
+    .table_theme = 1
+};
+
 bool sprite_update = false;
-uint8_t cursor_style = 2;
 
 /* Card bits:
  *   [6:7] Zero
@@ -234,10 +240,10 @@ void cursor_render_xy (uint8_t cursor_x, uint8_t cursor_y, bool cursor_visible)
 
     if (cursor_visible)
     {
-        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * cursor_style)    ));
-        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 1));
-        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 2));
-        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * cursor_style) + 3));
+        SMS_addSprite (cursor_x,     cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * settings.cursor_theme)    ));
+        SMS_addSprite (cursor_x + 8, cursor_y,     (uint8_t) (PATTERN_CURSOR + (4 * settings.cursor_theme) + 1));
+        SMS_addSprite (cursor_x,     cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * settings.cursor_theme) + 2));
+        SMS_addSprite (cursor_x + 8, cursor_y + 8, (uint8_t) (PATTERN_CURSOR + (4 * settings.cursor_theme) + 3));
     }
 
     /* Render held cards as sprites */
@@ -1252,16 +1258,11 @@ void game (void)
 
 
 /*
- * Cycle through different colour schemes.
+ * Apply the configured table colour theme.
  */
-void next_palette (void)
+void apply_palette (void)
 {
-    /* Start on dark-green */
-    static uint8_t index = 1;
-
-    index = (index + 1) % 8;
-
-    switch (index)
+    switch (settings.table_theme)
     {
         case 0: /* Dark Red */
             SMS_setSpritePaletteColor (0, 0x01); /* Dark Red */
@@ -1388,12 +1389,13 @@ void menu (void)
             /* Table */
             else if (cursor_stack == 3)
             {
-                next_palette ();
+                settings.table_theme = (settings.table_theme + 1) % 8;
+                apply_palette ();
             }
             /* Arrow */
             else if (cursor_stack == 4)
             {
-                cursor_style = (cursor_style + 1) % 3;
+                settings.cursor_theme = (settings.cursor_theme + 1) % 3;
                 cursor_render ();
             }
         }
@@ -1423,8 +1425,9 @@ void main (void)
     /* Setup */
     SMS_loadBGPalette (palette);
     SMS_loadSpritePalette (palette);
-    SMS_setSpritePaletteColor (0, 0x04); /* Initialise background to dark green */
-    SMS_setBGPaletteColor     (0, 0x04);
+
+    sram_load ();
+    apply_palette ();
     SMS_setBackdropColor (0);
 
     SMS_loadTiles (patterns, 0, sizeof (patterns));
@@ -1436,9 +1439,8 @@ void main (void)
 
     SMS_displayOn ();
 
-    sram_load ();
-
     menu ();
+    sram_save ();
 
     /* Main loop */
     while (true)
