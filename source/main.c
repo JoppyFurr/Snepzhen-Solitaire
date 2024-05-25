@@ -689,8 +689,7 @@ void cursor_place (void)
 
     came_from = 0xff;
 
-    /* Point at the new top card in the stack */
-    cursor_depth = CURSOR_DEPTH_MAX;
+    /* Re-draw the cursor, pointing at the card we've just placed. */
     cursor_move (0);
 }
 
