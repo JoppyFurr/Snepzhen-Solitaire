@@ -59,8 +59,6 @@ uint8_t stack [16] [16] = {
     { 0xff }, { 0xff }, { 0xff }, { 0xff }
 };
 bool stack_changed [16] = { false };
-uint8_t came_from = 0xff;
-
 bool button_active [3] = { false };
 
 /* Cursor */
@@ -88,6 +86,9 @@ enum cursor_position_e
 #define CURSOR_DEPTH_MAX 15
 uint8_t cursor_stack = CURSOR_TABLEAU_1;
 uint8_t cursor_depth = CURSOR_DEPTH_MAX;
+
+uint8_t came_from_stack = 0xff;
+uint8_t came_from_depth = CURSOR_DEPTH_MAX;
 
 uint8_t frame_counter = 0;
 
@@ -568,7 +569,8 @@ void cursor_pick (void)
     stack [STACK_HELD] [i] = 0xff;
     stack_changed [stack_idx] = true;
 
-    came_from = cursor_stack;
+    came_from_stack = cursor_stack;
+    came_from_depth = cursor_depth;
 
     /* Point at the new top card in the stack */
     cursor_depth = CURSOR_DEPTH_MAX;
@@ -585,7 +587,7 @@ void cursor_place (void)
     uint8_t stack_idx = (cursor_stack < CURSOR_DRAGON_BUTTONS) ? cursor_stack : cursor_stack - 1;
 
     /* Check if cards are allowed to move here */
-    if (cursor_stack != came_from)
+    if (cursor_stack != came_from_stack)
     {
         uint8_t stack_card = stack [stack_idx] [cursor_depth];
 
@@ -687,7 +689,7 @@ void cursor_place (void)
     stack [stack_idx] [cursor_depth + i] = 0xff;
     stack_changed [stack_idx] = true;
 
-    came_from = 0xff;
+    came_from_stack = 0xff;
 
     /* Re-draw the cursor, pointing at the card we've just placed. */
     cursor_move (0);
@@ -1141,12 +1143,12 @@ void move_cancel (void)
     /* Animation start-point */
     cursor_sd_to_xy (cursor_stack, cursor_depth, &from_x, &from_y);
 
-    cursor_stack = came_from;
+    cursor_stack = came_from_stack;
     cursor_depth = CURSOR_DEPTH_MAX;
     cursor_move (0);
 
     /* Animation end-point*/
-    cursor_sd_to_xy (cursor_stack, cursor_depth + 1, &to_x, &to_y);
+    cursor_sd_to_xy (came_from_stack, came_from_depth, &to_x, &to_y);
 
     card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
     cursor_place ();
