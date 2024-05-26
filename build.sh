@@ -42,12 +42,12 @@ build_snepzhen ()
             tiles/corner-prints.png \
             tiles/corner-snep.png \
             tiles/chinese-numbers.png \
+            tiles/footer.png \
             tiles/prints.png \
             tiles/snep-card.png \
             tiles/dragon-buttons.png \
             tiles/menu-text.png \
-            tiles/menu-icons.png \
-            tiles/version.png
+            tiles/menu-icons.png
     )
 
     mkdir -p build

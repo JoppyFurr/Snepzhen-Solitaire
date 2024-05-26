@@ -1313,17 +1313,21 @@ void apply_palette (void)
 /*
  * Show or hide the version number.
  */
-void show_version (bool show)
+void show_footer (bool show)
 {
+    const uint16_t footer_name [] = { PATTERN_FOOTER + 0, PATTERN_FOOTER + 1, PATTERN_FOOTER + 2, PATTERN_FOOTER + 3, PATTERN_FOOTER + 4 };
+    const uint16_t footer_version [] = { PATTERN_FOOTER + 5, PATTERN_FOOTER + 6, PATTERN_FOOTER + 7 };
+    const uint16_t blank_tiles [] = { PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY};
+
     if (show)
     {
-        uint16_t version_tiles [] = { PATTERN_VERSION + 0, PATTERN_VERSION + 1, PATTERN_VERSION + 2 };
-        SMS_loadTileMapArea (29, 23, &version_tiles, 3, 1);
+        SMS_loadTileMap ( 0, 23, &footer_name, sizeof (footer_name));
+        SMS_loadTileMap (29, 23, &footer_version, sizeof (footer_version));
     }
     else
     {
-        uint16_t blank_tiles [] = { PATTERN_EMPTY, PATTERN_EMPTY, PATTERN_EMPTY };
-        SMS_loadTileMapArea (29, 23, &blank_tiles, 3, 1);
+        SMS_loadTileMap ( 0, 23, &blank_tiles, sizeof (footer_name));
+        SMS_loadTileMap (29, 23, &blank_tiles, sizeof (footer_version));
     }
 }
 
@@ -1346,7 +1350,7 @@ void menu (void)
     /* Render background */
     memset (stack_changed, true, sizeof (stack_changed));
     render_background ();
-    show_version (true);
+    show_footer (true);
     cursor_stack = 2;
     cursor_depth = 0;
     cursor_render ();
@@ -1414,7 +1418,7 @@ void menu (void)
     }
 
     memset (stack_changed, true, sizeof (stack_changed));
-    show_version (false);
+    show_footer (false);
     render_background ();
 }
 
