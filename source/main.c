@@ -829,28 +829,29 @@ void render_background (void)
  */
 void card_slide (uint16_t start_x, uint16_t start_y,
                  uint16_t end_x,   uint16_t end_y,
-                 uint8_t frames,   bool cursor_visible)
+                 bool cursor_visible)
 {
     uint16_t x;
     uint16_t y;
 
-    for (uint8_t frame = 1; frame < frames; frame++)
+    x = start_x << 3;
+    y = start_y << 3;
+
+    for (uint8_t frame = 0; frame < 8; frame++)
     {
         /* Calculate next position */
-        x = (((start_x * 8) * (frames - frame)) +
-             ((end_x   * 8) * (         frame))) / frames / 8;
-        y = (((start_y * 8) * (frames - frame)) +
-             ((end_y   * 8) * (         frame))) / frames / 8;
+        x += end_x - start_x;
+        y += end_y - start_y;
 
-        cursor_render_xy (x, y, cursor_visible);
+        cursor_render_xy (x >> 3, y >> 3, cursor_visible);
 
-        /* Write to hardware */
+        /* Write to hardware - We wait for vblank first because
+         * cursor_render_xy takes too long, ending outside of
+         * the vblank area. */
         SMS_waitForVBlank ();
         SMS_copySpritestoSAT ();
     }
-
-    SMS_initSprites ();
-    SMS_copySpritestoSAT ();
+    SMS_waitForVBlank ();
 }
 
 
@@ -894,7 +895,7 @@ void deal (void)
 
             /* Animate the card being dealt */
             stack [STACK_HELD] [0] = deck [i];
-            card_slide (dest_x, 192, dest_x, dest_y, 8, false);
+            card_slide (dest_x, 192, dest_x, dest_y, false);
             stack [STACK_HELD] [0] = 0xff;
 
             /* Store the card in its new position */
@@ -959,7 +960,7 @@ void undeal (void)
             stack_changed [stack_idx] = true;
 
             render_background ();
-            card_slide (from_x, from_y, from_x, 192, 8, false);
+            card_slide (from_x, from_y, from_x, 192, false);
 
             stack [STACK_HELD] [0] = 0xff;
         }
@@ -1037,7 +1038,7 @@ void stack_dragons (void)
             stack_changed [stack_idx] = true;
             render_background ();
 
-            card_slide (from_x, from_y, to_x, to_y, 10, false);
+            card_slide (from_x, from_y, to_x, to_y, false);
 
             /* If there are currently no cards in the destination, draw one after the first slide-animation */
             if (stack [dest_idx] [0] == 0xff)
@@ -1112,7 +1113,7 @@ void move_auto (void)
 
             cursor_pick ();
             render_background ();
-            card_slide (from_x, from_y, to_x, to_y, 10, false);
+            card_slide (from_x, from_y, to_x, to_y, false);
             cursor_place ();
             render_background ();
             break;
@@ -1150,7 +1151,7 @@ void move_cancel (void)
     /* Animation end-point*/
     cursor_sd_to_xy (came_from_stack, came_from_depth, &to_x, &to_y);
 
-    card_slide (from_x + 2, from_y + 12, to_x, to_y, 10, true);
+    card_slide (from_x + 2, from_y + 12, to_x, to_y, true);
     cursor_place ();
 
     /* Update the background early, to avoid a frame without the card */
